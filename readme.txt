@@ -8,6 +8,7 @@ Stable tag: 1.0
 Collaborative bibliography management for authors in WordPress.
 
 == Description ==
+
 Enhanced Bibliplug creates a central repository for researchers to organize their academic work in a collaborate environment.
 
 Key features include:
@@ -15,9 +16,8 @@ Key features include:
 2. administration pages to manage the references.
 3. short code for easy retrieval of references based on author, year, and publication type.
 4. the ability to connect and synchronize with Zotero accounts.
-5. a custom Author page template to display user’s academic title, affiliation, bio, and CV content such as publications and presentations.
+5. a custom Author page template to display user's academic title, affiliation, bio, and CV content such as publications and presentations.
 6. short code for listing all users of the site.
-6. the ability to export bibliography data in RDF format based on the SPAR ontologies.
 7. the ability to group and retrieve references based on custom categories and tags.
 
 = Reference short codes =
@@ -55,20 +55,29 @@ Note:
 You can use id and format in the same short code instance.
 
 = included packages =
-`phpZotero` version 0.2 by Jeremy Boggs, Sean Takats.
+
+"phpZotero" version 0.2 by Jeremy Boggs, Sean Takats.
 
 == Installation ==
 
-1. Extract bibliplug.zip` files and upload `bibliplug` folder to the `/wp-content/plugins/` directory. Or, you can install the plugin using WordPress "Install Plugins" admin interface.
+
+1. Extract `bibliplug.zip` files and upload `bibliplug` folder to the `/wp-content/plugins/` directory. Or, you can install the plugin using WordPress "Install Plugins" admin interface.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
 3. To use customized author template:
-- If you are using thesis 1.8 for your theme, please copy the content of bibliplug\template\author-loop.php to Thesis custom_functions.php. 
-- Otherwise, copy the author.php to your theme folder.
+
+= Notes about author template =
+
+If you are using thesis 1.8 for your theme, please copy the content of bibliplug\template\author-loop.php to Thesis custom_functions.php. 
+
+Otherwise, copy the author.php to your theme folder.
+
+
 
 You're done!
 
 
 == Frequently Asked Questions ==
+
 
 = Cannot add/sync Zotero connection =
 
@@ -83,5 +92,7 @@ To synchronize with Zotero, the server needs to have php curl modules installed 
 
 == Changelog ==
 
+
 = 1.0 =
+
 First release.
