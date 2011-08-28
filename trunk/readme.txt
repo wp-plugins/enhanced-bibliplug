@@ -3,7 +3,7 @@ Contributors: zuotian, Clifford Tatum
 Tags: bibliography, author profile, reference, academic, zotero
 Requires at least: 2.9.1
 Tested up to: 3.2.1
-Stable tag: 1.0
+Stable tag: 1.1
 
 Collaborative bibliography management for authors in WordPress.
 
