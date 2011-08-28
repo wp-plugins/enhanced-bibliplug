@@ -4,8 +4,14 @@
 		$('div#sync_result').empty();
 		var id = $(this).val();
 		$.get(ajaxurl + '?action=bibliplug_sync_zotero&id=' + id, null, function(response) {
-			var r = wpAjax.parseAjaxResponse(response);
 			$('div#sync_progress').hide();
+			var r = wpAjax.parseAjaxResponse(response);
+			if (!r) {
+				// workaround to see the db error (which cannot be sent via wpAjax.
+				$('div#sync_result').append(response);
+				return;
+			}
+						
 			$('tr#zotero_account-' + id).children('td.last_updated').text(r.responses[0].data);
 			$('div#sync_result').append(r.responses[1].data);
 		});

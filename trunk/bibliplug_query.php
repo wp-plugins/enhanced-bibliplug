@@ -538,7 +538,8 @@ class bibliplug_query {
 		global $wpdb;
 		if (!$wpdb->update($this->zoteroconnections_table, $field_values, array('id' => $connection_id), $field_formats, array('%d')))
 		{
-			throw new exception($wpdb->last_error);
+			//throw new exception($wpdb->last_error);
+			print $wpdb->print_error();
 		}
 	}
 	
@@ -568,22 +569,22 @@ class bibliplug_query {
 		// now we are going to create the table that stores all bibliography data except for its creators.
 		$create_table = 'CREATE TABLE IF NOT EXISTS '.$this->bibliography_table.' (
 			id int UNSIGNED NOT NULL AUTO_INCREMENT,
-			type_id tinyint UNSIGNED,
+			type_id int UNSIGNED,
 			title varchar(255),
 			publication_title varchar(255),
-			series varchar(32),
+			series varchar(255),
 			series_number varchar(32),
-			volume smallint,
-			number_of_volumes smallint,
+			volume int,
+			number_of_volumes int,
 			issue varchar(32),
 			edition varchar(32),
-			start_page smallint,
-			end_page smallint,
+			start_page int,
+			end_page int,
 			publisher varchar(255),
 			publish_date varchar(64),
 			publish_year varchar(32),
 			short_title varchar(255),
-			url varchar(255),
+			url varchar(512),
 			access_date varchar(32),
 			call_number varchar(64),
 			section varchar(32),
@@ -599,15 +600,15 @@ class bibliplug_query {
 			keywords text,
 			running_time varchar(32),
 			series_title varchar(255),
-			link1 varchar(255),
-			link2 varchar(255),
-			link3 varchar(255),
+			link1 varchar(512),
+			link2 varchar(512),
+			link3 varchar(512),
 			city_of_publication varchar(255),
 			peer_reviewed tinyint(1) UNSIGNED DEFAULT 1,
 			zotero_key varchar(64),
 			zotero_etag varchar(64),
 			PRIMARY KEY (id),
-			FOREIGN KEY(type_id) REFERENCES '.$this->types_table.'(id),
+			FOREIGN KEY (type_id) REFERENCES '.$this->types_table.'(id),
 			UNIQUE INDEX (`type_id` ASC, `title` ASC, `conference_name` ASC),
 			UNIQUE INDEX (`type_id` ASC, `title` ASC, `publication_title` ASC),
 			UNIQUE INDEX (`zotero_key` ASC)
@@ -618,12 +619,12 @@ class bibliplug_query {
 		$create_table = 'CREATE TABLE IF NOT EXISTS '.$this->creators_table.' (
 			id int UNSIGNED NOT NULL AUTO_INCREMENT,
 			bib_id int UNSIGNED NOT NULL,
-			creator_type_id tinyint UNSIGNED NOT NULL,
+			creator_type_id int UNSIGNED NOT NULL,
 			first_name varchar(64) NOT NULL,
 			last_name varchar(64) NOT NULL,
 			middle_name varchar(64),
 			prefix varchar(64),
-			order_index tinyint UNSIGNED,
+			order_index int UNSIGNED,
 			is_secondary tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
 			PRIMARY KEY (id),
 			FOREIGN KEY (bib_id) REFERENCES '.$this->bibliography_table.'(id) ON DELETE CASCADE,
@@ -631,54 +632,65 @@ class bibliplug_query {
 			);';
 		$wpdb->query($create_table);
 	}
+		
+	public function upgrade_schema()
+	{
+		$this->refresh_schema();
+
+		// $version = get_option('bibliplug_db_version');
+		if (BIBLIPLUG_VERSION == '1.1')
+		{			
+			global $wpdb;
+			$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `link1` `link1` varchar(512);");
+			$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `link2` `link2` varchar(512);");
+			$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `link3` `link3` varchar(512);");
+			$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `url` `url` varchar(512);");
+			$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `series` `series` varchar(255);");
+			
+			$wpdb->query("ALTER TABLE $this->zoteroconnections_table ADD `start` int;");
+			$wpdb->query("ALTER TABLE $this->zoteroconnections_table ADD `sync_time` varchar(32);");
+		}
+	}
 	
-	public function refresh_schema($delete_data=false)
+	private function refresh_schema($delete_data=false)
 	{
 		global $wpdb;
 		if ($delete_data) 
 		{
-			$drop_table = 'DROP TABLE IF EXISTS '.$this->creators_table.';';
+			$drop_table = "DROP TABLE IF EXISTS $this->creators_table;";
 			$wpdb->query($drop_table);
-			$drop_table = 'DROP TABLE IF EXISTS '.$this->bibliography_table.';';
+			$drop_table = "DROP TABLE IF EXISTS $this->bibliography_table;";
 			$wpdb->query($drop_table);
-			$drop_table = 'DROP TABLE IF EXISTS '.$this->zoteroconnections_table.';';
+			$drop_table = "DROP TABLE IF EXISTS $this->zoteroconnections_table;";
 			$wpdb->query($drop_table);
 		}
 		
-		$drop_table = 'DROP TABLE IF EXISTS '.$this->typecreatortypes_table.';';
+		$wpdb->query("SET foreign_key_checks = 0;");
+		
+		$drop_table = "DROP TABLE IF EXISTS $this->typecreatortypes_table;";
 		$wpdb->query($drop_table);
-		$drop_table = 'DROP TABLE IF EXISTS '.$this->creatortypes_table.';';
+		$drop_table = "DROP TABLE IF EXISTS $this->creatortypes_table;";
 		$wpdb->query($drop_table);
-		$drop_table = 'DROP TABLE IF EXISTS '.$this->typefields_table.';';
+		$drop_table = "DROP TABLE IF EXISTS $this->typefields_table;";
 		$wpdb->query($drop_table);
-		$drop_table = 'DROP TABLE IF EXISTS '.$this->fields_table.';';
+		$drop_table = "DROP TABLE IF EXISTS $this->fields_table;";
 		$wpdb->query($drop_table);
-		$drop_table = 'DROP TABLE IF EXISTS '.$this->types_table.';';
+		$drop_table = "DROP TABLE IF EXISTS $this->types_table;";
 		$wpdb->query($drop_table);
 		
 		$this->create_db();
-	}
-
-	public function upgrade_schema()
-	{
-		global $wpdb;
-
-		$version = get_option('bibliplug_db_version');
-		// $version = '0.2';
-		if ($version != BIBLIPLUG_VERSION)
-		{
-			$wpdb->query("UPDATE $this->typefields_table SET order_index = 0 WHERE field_id = 3");
-			$wpdb->query("INSERT INTO $this->typefields_table(type_id, field_id, order_index) VALUES(8, 3, 0)");
-			$wpdb->query("ALTER TABLE $this->bibliography_table ADD zotero_etag varchar(64)");
-		}
+		
+		$wpdb->query("SET foreign_key_checks = 1;");
 	}
 	
-	private function create_db() {
+	
+	private function create_db()
+	{
 		global $wpdb;
 		
 		// table for bibliography types.
 		$create_table = 'CREATE TABLE IF NOT EXISTS '.$this->types_table.' (
-			id tinyint UNSIGNED NOT NULL,
+			id int UNSIGNED NOT NULL,
 			name varchar(32) NOT NULL,
 			internal_name varchar(32) NOT NULL,
 			PRIMARY KEY (id),
@@ -688,7 +700,7 @@ class bibliplug_query {
 		
 		// table for bibliography fields.
 		$create_table = 'CREATE TABLE IF NOT EXISTS '.$this->fields_table.' (
-			id tinyint UNSIGNED NOT NULL,
+			id int UNSIGNED NOT NULL,
 			name varchar(32) NOT NULL,
 			internal_name varchar(32) NOT NULL,
 			PRIMARY KEY (id),
@@ -698,9 +710,9 @@ class bibliplug_query {
 		
 		// table to map type and fields
 		$create_table = 'CREATE TABLE IF NOT EXISTS '.$this->typefields_table.' (
-			type_id tinyint UNSIGNED NOT NULL,
-			field_id tinyint UNSIGNED NOT NULL,
-			display_field_id tinyint UNSIGNED,
+			type_id int UNSIGNED NOT NULL,
+			field_id int UNSIGNED NOT NULL,
+			display_field_id int UNSIGNED,
 			order_index tinyint UNSIGNED,
 			PRIMARY KEY (type_id, field_id),
 			FOREIGN KEY (type_id) REFERENCES '.$this->types_table.'(id),
@@ -710,7 +722,7 @@ class bibliplug_query {
 		
 		// table for creator types
 		$create_table = 'CREATE TABLE IF NOT EXISTS '.$this->creatortypes_table.' (
-			id tinyint UNSIGNED NOT NULL,
+			id int UNSIGNED NOT NULL,
 			name varchar(32) NOT NULL,
 			PRIMARY KEY (id),
 			UNIQUE (name)
@@ -719,9 +731,9 @@ class bibliplug_query {
 		
 		// table to map type and creator types.
 		$create_table = 'CREATE TABLE IF NOT EXISTS '.$this->typecreatortypes_table.' (
-			type_id tinyint UNSIGNED NOT NULL,
-			creatortype_id tinyint UNSIGNED NOT NULL,
-			order_index tinyint UNSIGNED, 
+			type_id int UNSIGNED NOT NULL,
+			creatortype_id int UNSIGNED NOT NULL,
+			order_index int UNSIGNED, 
 			PRIMARY KEY (type_id, creatortype_id),
 			FOREIGN KEY (type_id) REFERENCES '.$this->types_table.'(id),
 			FOREIGN KEY (creatortype_id) REFERENCES '.$this->creatortypes_table.'(id)

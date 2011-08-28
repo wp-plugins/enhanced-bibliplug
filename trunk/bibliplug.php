@@ -4,7 +4,7 @@
   Plugin Name: Enhanced BibliPlug
   Plugin URI: http://ep-books.ehumanities.nl/semantic-words/enhanced-bibliplug
   Description: Collaborative bibliography management for WordPress.
-  Version: 1.0
+  Version: 1.1
   Author: Zuotian Tatum, Clifford Tatum
  */
 
@@ -27,13 +27,15 @@
 
 if (!defined('BIBLIPLUG_VERSION'))
 {
-	define('BIBLIPLUG_VERSION', '1.0');
+	define('BIBLIPLUG_VERSION', '1.1');
 }
 
 if (!defined('BIBLIPLUG_DIR'))
 {
 	define('BIBLIPLUG_DIR', ABSPATH . 'wp-content/plugins/enhanced-bibliplug/');
 }
+
+define('BIBLIPLUG_DEBUG', get_option('bibliplug_debug', '0'));
 
 global $wpdb;
 
@@ -111,7 +113,7 @@ function bibliplug_activation()
 	// here we should create tables needed for this plug in
 	// cannot use global $bib_query here.
 	$bib_query = new bibliplug_query();
-	$bib_query->refresh_schema();
+	$bib_query->upgrade_schema();
 
 	// update db version
 	$option_name = 'bibliplug_db_version';
@@ -138,7 +140,7 @@ function bibliplug_menu()
 	add_submenu_page('enhanced-bibliplug/bibliplug_manager.php', 'Zotero Connector', 'Zotero Connector', 8, 'enhanced-bibliplug/bibliplug_zotero.php');
 
 	// only admin can see the option setting page
-	add_options_page('Bibliplug Options', 'BibliPlug', 8, 'bibliplug/bibliplug_options.php');
+	add_options_page('Bibliplug Options', 'BibliPlug', 8, 'enhanced-bibliplug/bibliplug_options.php');
 }
 
 function remove_edit_menu()
