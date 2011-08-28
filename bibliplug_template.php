@@ -107,6 +107,7 @@ class bibliplug_template {
 					case 'access_date':
 					case 'volume':
 					case 'issue':
+					case 'series_number':
 						?><input name="<? echo $field_name; ?>" type="text" id="<? echo $field_name; ?>" value="<? echo esc_attr($field_value); ?>" class="short"/><?
 						break;
 					

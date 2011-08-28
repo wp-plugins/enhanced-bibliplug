@@ -36,10 +36,12 @@ References can be displayed on any post/page using short code bibliplug.
 **Note:**
 
 You can mix-match any arguments except:
+
 *   If id is used, other arguments are ignored.
 *   If category is used, tag is ignored.
 
 Other than types shown in the drop down box when editing a reference, there are two super types you can use.
+
 *   Publication => any type that's not presentation or conference paper.
 *   Presentation => presentation and conference paper.
 
@@ -57,7 +59,7 @@ Author list can be displayed on any post/page using short code bibliplug_authors
 **Note:**
 You can use id and format in the same short code instance.
 
-= included packages =
+= Included packages =
 
 [phpZotero](https://github.com/clioweb/phpZotero "phpZotero") version 0.2 by Jeremy Boggs, Sean Takats.
 
@@ -85,6 +87,10 @@ You're done!
 
 To synchronize with Zotero, the server needs to have php curl modules installed and enabled. Please check your php.ini file to make sure curl module is present and enabled.
 
+= Will my data be deleted during upgrade? =
+
+Deactivating or upgrade the plugin will not delete your bibligraphical data. 
+
 
 == Screenshots ==
 
@@ -92,7 +98,20 @@ To synchronize with Zotero, the server needs to have php curl modules installed 
 2. Connect to Zotero
 3. Author profile template
 
+== Upgrade Notice ==
+
+= 1.1 =
+
+Add debugging support for zotero synchronization issues and support for paging through Zotero API results.
+
 == Changelog ==
+
+= 1.1 =
+
+* Bug fix for bibliplug setting page.
+* Added debug option for bibliplug setting page. This is for easy debugging zotero connection issues.
+* Added a generic reference type "Other" to handle types currently not supported by bibliplug.
+* Added support for paging through Zotero API results.
 
 
 = 1.0 =

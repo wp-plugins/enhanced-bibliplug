@@ -14,13 +14,6 @@ if (isset($_POST['clear-reference']) && $_POST['clear-reference']) {
 	unset($_POST['clear-reference']);
 }
 
-if (isset($_POST['refresh-schema']) && $_POST['refresh-schema']) {
-	check_admin_referer('bibliplug_options');
-	$bib_query->refresh_schema(true);
-	update_option('bibliplug_db_version', BIBLIPLUG_VERSION);
-	unset($_POST['refresh-schema']);
-}
-
 if (isset($_POST['upgrade-schema']) && $_POST['upgrade-schema']) {
 	check_admin_referer('bibliplug_options');
 	$bib_query->upgrade_schema();
@@ -41,10 +34,15 @@ if (isset($_POST['update']) && $_POST['update']) {
 	if (isset($_POST['sync_setting']) && $_POST['sync_setting']) {
 		update_option('bibliplug_zotero_sync_setting', $_POST['sync_setting']);
 	}
+	
+	if (isset($_POST['debug_setting'])) {
+		update_option('bibliplug_debug', $_POST['debug_setting']);
+	}
 }
 
 $is_english = get_option('bibliplug_last_name_format') == 'english';
 $is_automatic = get_option('bibliplug_zotero_sync_setting') == 'automatic';
+$is_debug = get_option('bibliplug_debug') != '0';
 ?>
 
 <div class="wrap">
@@ -56,7 +54,6 @@ $is_automatic = get_option('bibliplug_zotero_sync_setting') == 'automatic';
 		<h3>Version</h3>
 		<p>
 			<?php printf('Your bibliplug database version is %s.', get_option('bibliplug_db_version')); ?>
-			<input type="submit" name="refresh-schema" class="button-primary schema" value="Refresh schema" />
 			<input type="submit" name="upgrade-schema" class="button-primary schema" value="Upgrade schema" />
 		</p>
 
@@ -68,13 +65,22 @@ $is_automatic = get_option('bibliplug_zotero_sync_setting') == 'automatic';
 
 		<h3>Options</h3>
 		<p>The number of references shown on the admin edit page.
-			<input class="text" name="page_size" value="<?php echo get_option('bibliplug_page_size'); ?>" />
+			<input type="text" name="page_size" value="<?php echo get_option('bibliplug_page_size'); ?>" />
 		</p>
 
 		<p>Last name display format:
 			<input type="radio" name="last_name_format" value="english" <?php echo $is_english ? 'checked' : ''; ?> /> English
 			<input type="radio" name="last_name_format" value="dutch" <?php echo $is_english ? '' : 'checked'; ?>/> Dutch
 		</p>
+		<p>Debug bibliplug:
+			<select name="debug_setting">
+				<option value="0" <?php echo $is_debug ? '' : 'selected'; ?>>False</option>
+				<option value="1" <?php echo $is_debug ? 'selected' : ''; ?>>True</option>
+			</select>
+			<br/>
+			<span class="description">This is helpful to debug databse errors and zotero synchronization issues.</span>
+		</p>
+		
 		<p>&nbsp;</p>
 		<p>Update scheduling:
 			<select name="sync_setting">

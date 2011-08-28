@@ -238,6 +238,11 @@ class import_format_helper {
 					case 'itemType':
 						$field_values['type_id'] = $this->get_type_id_from_zotero_type($value);
 						$field_formats[] = '%d';
+						
+						if ($field_values['type_id'] == 0 && BIBLIPLUG_DEBUG)
+						{
+							print "<p>Warning: type '$value' for reference '{$data['title']}' is not support. Mapped to 'Other'.</p>";
+						}
 						break;
 
 					case 'numPages':
@@ -328,7 +333,10 @@ class import_format_helper {
 								$field_formats[] = '%s';
 							}
 							
-							//print "<p>warning: unhandled field '$key' with value '$value' for reference '{$data['title']}'.</p>";
+							if (BIBLIPLUG_DEBUG)
+							{
+								print "<p>Warning: unhandled field '$key' with value '$value' for reference '{$data['title']}'.</p>";
+							}
 						}
 						break;
 				}
@@ -379,7 +387,7 @@ class import_format_helper {
 				return $bib_query->get_type_row_by_id(12);
 				
 			default:
-				throw new exception ("Invalid bibliography type: $data.");
+				return $bib_query->get_type_row_by_id(0);
 		}
 	}
 
@@ -425,7 +433,7 @@ class import_format_helper {
 				throw new exception("Attachments are ignored.");
 				
 			default:
-				throw new exception("Invalid bibliography type: $type_name.");
+				return 0;
 		}
 	}
 
@@ -447,6 +455,8 @@ class import_format_helper {
 				return 'call_number';
 			case 'publicationTitle':
 			case 'bookTitle':
+			case 'forumTitle':
+			case 'proceedingsTitle':
 				return 'publication_title';
 			case 'seriesTitle':
 				return 'series_title';
@@ -457,6 +467,8 @@ class import_format_helper {
 				return 'place';
 			case 'runningTime':
 				return 'running_time';
+			case 'conferenceName':
+				return 'conference_name';
 
 			// these should be processed eariler.
 			case 'itemType':
@@ -500,7 +512,10 @@ class import_format_helper {
 			case 'director':
 				return 8;
 			default:
-				print "<p>warning: unhandled creator type '$value'</p>";
+				if (BIBLIPLUG_DEBUG) 
+				{
+					print "<p>Warning: unhandled creator type '$value'. Mapped to default creator type.</p>";
+				}
 				return 1;
 		}
 	}

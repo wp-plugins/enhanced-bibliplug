@@ -183,7 +183,7 @@ function bibliplug_sync_zotero()
 	foreach($connections as $connection)
 	{
 		$sync_time = gmdate("Y-m-d\TH:i:s\Z");
-		$message .= "<p>$sync_time: Syncing connection \"$connection->nick_name\"</p>";
+		$message .= "<h3>$sync_time: Syncing connection \"$connection->nick_name\"</h3>";
 		$zotero = new phpZotero($connection->private_key);
 		$headers = array();
 
@@ -192,205 +192,254 @@ function bibliplug_sync_zotero()
 			$connection_last_synced = strtotime($connection->last_updated);
 			$headers[] = "If-Modified-Since: $connection->last_updated";
 		}
+		
+		$parameters = array('content' => 'json');
 
-		if ($connection->collection_id)
+		// for paging through results.
+		$start_position = $connection->start;
+		$totalResults = 0;
+		do
 		{
-			$xml = $zotero->getCollectionItems(
-					$connection->account_id,
-					$connection->collection_id,
-					array('content' => 'json'),
-					$connection->account_type,
-					$headers);
-		}
-		else
-		{
-			$xml = $zotero->getItemsTop(
-					$connection->account_id,
-					array('content' => 'json'),
-					$connection->account_type);
-		}
-
-		if ($zotero->getResponseStatus() == 304)
-		{
-			$bib_query->update_zotero_connection($connection->id, array('last_updated' => $sync_time), array('%s'));
-			$message .= "<p class='bib_warning'>&nbsp;&nbsp;&nbsp;&nbsp;No change since $connection->last_updated.</p>";
-			continue;
-		}
-
-		if ($zotero->getResponseStatus() != 200)
-		{
-			$message .= "<p class='bib_error'>&nbsp;&nbsp;&nbsp;&nbsp;Invalid connection. Please check your connection parameters.</p>$result";
-			continue;
-		}
-
-		//die($xml);
-
-		$doc = $zotero->getDom($xml);
-		$xpath = new DOMXPath($doc);
-		$xpath->registerNamespace('atom', 'http://www.w3.org/2005/Atom');
-
-		$updated_root = $doc->getElementsByTagName('updated')->item(0)->nodeValue;
-
-		// if zotero api getItemTop does not work with If-Modified-Since. Do
-		// a manual check.
-		if ($connection_last_synced && $connection_last_synced >= strtotime($updated_root))
-		{
-			$bib_query->update_zotero_connection($connection->id, array('last_updated' => $sync_time), array('%s'));
-			$message .= "<p class='bib_warning'>&nbsp;&nbsp;&nbsp;&nbsp;No change since $connection->last_updated.</p>";
-			continue;
-		}
-
-		$entries = $xpath->query("//atom:entry");
-		$message .= "<p>&nbsp;&nbsp;&nbsp;&nbsp;Number of references retrieved: $entries->length</p>";
-
-		require_once(BIBLIPLUG_DIR . '/format_helper/import_format_helper.php');
-		require_once(ABSPATH . WPINC . '/class-json.php');
-		$parser_helper = new import_format_helper();
-		$json = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
-
-		$authors_format = array('%s', '%s', '%s', '%d', '%d', '%d');
-		$style_helper = new display_format_helper();
-		$num_added = 0;
-		$num_updated = 0;
-		$num_deleted = 0;
-		$num_skipped = 0;
-		$num_errors = 0;
-		$result = '';
-
-		foreach ($entries as $entry)
-		{
-			$content_node = $entry->getElementsByTagName('content')->item(0);
-			$content = $content_node->nodeValue;
-			$etag = $content_node->getAttribute('etag');
-			$title = $entry->getElementsByTagName('title')->item(0)->nodeValue;
-			$item_key = $entry->getElementsByTagNameNS('http://zotero.org/ns/api', 'key')->item(0)->nodeValue;
-			$published = strtotime($entry->getElementsByTagName('published')->item(0)->nodeValue);
-			$updated = strtotime($entry->getElementsByTagName('updated')->item(0)->nodeValue);
-
-			$add = true;
-			if ($connection_last_synced)
+			if ($start_position)
 			{
-				// if this connection has synced before, need to see whether the new reference
-				// needs to be add, updated, or ignored.
-				if ($updated <= $connection_last_synced)
-				{
-					// no change. skip through.
-					$result .= "<p>No changes for reference '$title'.</p>";
-					$num_skipped++;
-					continue;
-				}
-
-				// now we know this reference is either added or updated after last time we synced.
-				$add = $published > $connection_last_synced;
+				$parameters['start'] = $start_position;
+				$sync_time = $connection->sync_time;
 			}
-
-			$reference_raw = $json->decode($content);
-			$deleted = $reference_raw['deleted'];
-			$authors = array();
-			$field_values = array('zotero_key' => $item_key, 'zotero_etag' => $etag);
-			$field_formats = array('%s', '%s');
-
-			try
+			
+			if ($connection->collection_id)
 			{
-				if ($deleted)
+				$xml = $zotero->getCollectionItems(
+						$connection->account_id,
+						$connection->collection_id,
+						$parameters,
+						$connection->account_type,
+						$headers);
+			}
+			else
+			{
+				$xml = $zotero->getItemsTop(
+						$connection->account_id,
+						$parameters,
+						$connection->account_type);
+			}
+	
+			if ($zotero->getResponseStatus() == 304)
+			{
+				$bib_query->update_zotero_connection($connection->id, array('last_updated' => $sync_time), array('%s'));
+				$message .= "<p class='bib_warning'>&nbsp;&nbsp;&nbsp;&nbsp;No change since $connection->last_updated.</p>";
+				// skip the do-while loop and continue to the next connection.
+				continue 2;
+			}
+	
+			if ($zotero->getResponseStatus() != 200)
+			{
+				$message .= "<p class='bib_error'>&nbsp;&nbsp;&nbsp;&nbsp;Invalid connection. Please check your connection parameters.</p>$result";
+				// skip the do-while loop and continue to the next connection.
+				continue 2;
+			}
+			
+			//die($xml);
+		
+			$doc = $zotero->getDom($xml);
+			$xpath = new DOMXPath($doc);
+			$xpath->registerNamespace('atom', 'http://www.w3.org/2005/Atom');
+	
+			$updated_root = $doc->getElementsByTagName('updated')->item(0)->nodeValue;
+	
+			// if zotero api getItemTop does not work with If-Modified-Since. Do a manual check.
+			if ($connection_last_synced && $connection_last_synced >= strtotime($updated_root))
+			{
+				$bib_query->update_zotero_connection($connection->id, array('last_updated' => $sync_time), array('%s'));
+				$message .= "<p class='bib_warning'>&nbsp;&nbsp;&nbsp;&nbsp;No change since $connection->last_updated.</p>";
+				// skip the do-while loop and continue to the next connection.
+				continue 2;
+			}
+			
+			if (!$start_position) {
+				// first time in do loop.
+				$totalResults = $doc->getElementsByTagNameNS('http://zotero.org/ns/api', 'totalResults')->item(0)->nodeValue;
+				$message .= "<p><strong>Number of references found in top-level items: $totalResults</strong></p>";
+			}
+			
+			$entries = $xpath->query("//atom:entry");		
+			$message .= "<p><strong>Number of references retrieved: $entries->length</strong></p>";
+			
+			// set up the next page request.
+			if ($start_position + $entries->length < $totalResults)
+			{
+				$start_position += $entries->length;
+			}
+			else
+			{
+				// we are done pading. get out of the do-while loop.
+				$start_position = 0;
+			}
+	
+			require_once(BIBLIPLUG_DIR . '/format_helper/import_format_helper.php');
+			require_once(ABSPATH . WPINC . '/class-json.php');
+			$parser_helper = new import_format_helper();
+			$json = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
+	
+			$authors_format = array('%s', '%s', '%s', '%d', '%d', '%d');
+			$style_helper = new display_format_helper();
+			$num_added = 0;
+			$num_updated = 0;
+			$num_deleted = 0;
+			$num_skipped = 0;
+			$num_errors = 0;
+			$result = '';
+	
+			foreach ($entries as $entry)
+			{
+				$content_node = $entry->getElementsByTagName('content')->item(0);
+				$content = $content_node->nodeValue;
+				$etag = $content_node->getAttribute('etag');
+				$title = $entry->getElementsByTagName('title')->item(0)->nodeValue;
+				$item_key = $entry->getElementsByTagNameNS('http://zotero.org/ns/api', 'key')->item(0)->nodeValue;
+				$published = strtotime($entry->getElementsByTagName('published')->item(0)->nodeValue);
+				$updated = strtotime($entry->getElementsByTagName('updated')->item(0)->nodeValue);
+	
+				$add = true;
+				if ($connection_last_synced)
 				{
-					if ($connection_last_synced)
+					// if this connection has synced before, need to see whether the new reference
+					// needs to be add, updated, or ignored.
+					if ($updated <= $connection_last_synced)
 					{
-						$bib_query->delete_bibliography_by_zotero_key($item_key);
-						$result .= "<p>Deleted reference '$title'.</p>";
-						$num_deleted++;
-					}
-					else
-					{
-						$result .= "<p>Skip deleted reference '$title'.</p>";
+						// no change. skip through.
+						$result .= "<p>No changes for reference '$title'.</p>";
 						$num_skipped++;
+						continue;
 					}
+	
+					// now we know this reference is either added or updated after last time we synced.
+					$add = $published > $connection_last_synced;
 				}
-				else
+	
+				$reference_raw = $json->decode($content);
+				$deleted = $reference_raw['deleted'];
+				$authors = array();
+				$field_values = array('zotero_key' => $item_key, 'zotero_etag' => $etag);
+				$field_formats = array('%s', '%s');
+	
+				try
 				{
-					$parser_helper->parse_zotero_entry($reference_raw, $field_values, $field_formats, $authors);
-
-					if ($add)
+					if ($deleted)
 					{
-						$bib_id = $bib_query->insert_bibliography($field_values, $field_formats, $authors, $authors_format);
-						wp_set_object_terms($bib_id, $connection->nick_name, 'ref_cat');
-
-						//$field_values['id'] = $bib_id;
-						$result .= "<p>Added reference '$title'.</p>";
-						$num_added++;
-					}
-					else
-					{
-						$bib_id = $bib_query->get_bib_id_by_zotero_key($item_key);
-
-						if ($bib_id)
+						if ($connection_last_synced)
 						{
-							$bib_query->update_bibliography($bib_id, $field_values, $field_formats);
-							$bib_query->delete_creators_from_bib_id($bib_id);
-							$authors_format[] = '%d';
-							foreach ($authors as $author)
-							{
-								$author['bib_id'] = $bib_id;
-								$bib_query->insert_creator($author, $authors_format);
-							}
+							$bib_query->delete_bibliography_by_zotero_key($item_key);
+							$result .= "<p>&nbsp;&nbsp;&nbsp;&nbsp;Deleted reference '$title'.</p>";
+							$num_deleted++;
 						}
 						else
 						{
+							$result .= "<p>&nbsp;&nbsp;&nbsp;&nbsp;Skip deleted reference '$title'.</p>";
+							$num_skipped++;
+						}
+					}
+					else
+					{
+						$parser_helper->parse_zotero_entry($reference_raw, $field_values, $field_formats, $authors);
+	
+						if ($add)
+						{
 							$bib_id = $bib_query->insert_bibliography($field_values, $field_formats, $authors, $authors_format);
 							wp_set_object_terms($bib_id, $connection->nick_name, 'ref_cat');
+	
+							//$field_values['id'] = $bib_id;
+							$result .= "<p>&nbsp;&nbsp;&nbsp;&nbsp;Added reference '$title'.</p>";
+							$num_added++;
 						}
-
-						$result .= "<p>Updated reference '$title'.</p>";
-						$num_updated++;
+						else
+						{
+							$bib_id = $bib_query->get_bib_id_by_zotero_key($item_key);
+	
+							if ($bib_id)
+							{
+								$bib_query->update_bibliography($bib_id, $field_values, $field_formats);
+								$bib_query->delete_creators_from_bib_id($bib_id);
+								$authors_format[] = '%d';
+								foreach ($authors as $author)
+								{
+									$author['bib_id'] = $bib_id;
+									$bib_query->insert_creator($author, $authors_format);
+								}
+							}
+							else
+							{
+								$bib_id = $bib_query->insert_bibliography($field_values, $field_formats, $authors, $authors_format);
+								wp_set_object_terms($bib_id, $connection->nick_name, 'ref_cat');
+							}
+	
+							$result .= "<p>&nbsp;&nbsp;&nbsp;&nbsp;Updated reference '$title'.</p>";
+							$num_updated++;
+						}
+					}
+					//$fields = $bib_query->get_fields_by_type_id($field_values['type_id']);
+					//print $style_helper->display_chicago_style((object)$field_values, $fields);
+				}
+				catch(exception $e)
+				{
+					//print $e->getMessage();
+					if (strpos($e->getMessage(), "Duplicate entry") !== false)
+					{
+						$result .= "<p class='bib_warning'>&nbsp;&nbsp;&nbsp;&nbsp;Warning: failed to insert reference '$title' because there's a duplicate entry.</p>";
+						$num_skipped++;
+					}
+					else
+					{
+						if (BIBLIPLUG_DEBUG) 
+						{
+							$result .= $e->getMessage();
+						}
+						
+						$result .= "<p class='bib_error'>&nbsp;&nbsp;&nbsp;&nbsp;Error: failed to " . (($add) ? "insert" : "update") . " reference '$title'.</p>";
+						$num_errors++;
 					}
 				}
-				//$fields = $bib_query->get_fields_by_type_id($field_values['type_id']);
-				//print $style_helper->display_chicago_style((object)$field_values, $fields);
 			}
-			catch(exception $e)
-			{
-				//print $e->getMessage();
-				if (strpos($e->getMessage(), "Duplicate entry") !== false)
-				{
-					$result .= "<p class='bib_warning'>Warning: failed to insert reference '$title' because there's a duplicate entry.</p>";
-					$num_skipped++;
-				}
-				else
-				{
-					$result .= "<p class='bib_error'>Error: failed to " . (($add) ? "insert" : "update") . " reference '$title'.</p>";
-					$num_errors++;
-				}
-			}
-		}
+		} while($auto_sync && $start_position > 0);
 
 		// now update the last_updated timestamp
-		$bib_query->update_zotero_connection($connection->id, array('last_updated' => $sync_time), array('%s'));
 		
-		$message .= "<p>&nbsp;&nbsp;&nbsp;&nbsp;Number of references added: $num_added.</p>";
-		$message .= "<p>&nbsp;&nbsp;&nbsp;&nbsp;Number of references updated: $num_updated.</p>";
-		$message .= "<p>&nbsp;&nbsp;&nbsp;&nbsp;Number of references deleted: $num_deleted.</p>";
-		$message .= "<p>&nbsp;&nbsp;&nbsp;&nbsp;Number of references skipped: $num_skipped.</p>";
-		$message .= "<p>&nbsp;&nbsp;&nbsp;&nbsp;Number of references failed: $num_errors.</p>";
+		if ($start_position > 0)
+		{
+			$bib_query->update_zotero_connection($connection->id, array('start' => $start_position, 'sync_time' => $sync_time), array('%d', '%s'));
+			$message .= "<p class='bib_warning'><strong>There are too many items in this connection that results are broken down to multiple pages.<br/>";
+			$message .= "First $start_position items are synchronized. To continue synchronize this connection, click the sync button again.</strong></p>";
+		}
+		else
+		{
+			$bib_query->update_zotero_connection($connection->id, array('last_updated' => $sync_time, 'start' => 0, 'sync_time' => ''), array('%s', '%d', '%s'));
+			$message .= "<p><strong>Connection '$connection->nick_name' synchronization is finished.</strong></p>";
+		}
+		
+		$message .= "<p>&nbsp;&nbsp;Number of references added: $num_added.</p>";
+		$message .= "<p>&nbsp;&nbsp;Number of references updated: $num_updated.</p>";
+		$message .= "<p>&nbsp;&nbsp;Number of references deleted: $num_deleted.</p>";
+		$message .= "<p>&nbsp;&nbsp;Number of references skipped: $num_skipped.</p>";
+		$message .= "<p>&nbsp;&nbsp;Number of references failed: $num_errors.</p>";
 		$message .= $result;
 	} // foreach($connections as $connection)
 
-	if (!$auto_sync)
+	if ($auto_sync || WP_DEBUG || BIBLIPLUG_DEBUG)
+	{
+		die($message);
+	}
+	else
 	{
 		// there should be only one connection to sync in this case.
 		$response = new WP_Ajax_Response();
 		$response->add(array(
 			'what' => 'ts',
-			'data' => $sync_time
+			'data' => ($start_position > 0) ? $connection->last_updated : $sync_time
 		));
 		$response->add(array(
 			'what' => 'message',
 			'data' => $message
 		));
 		$response->send();
-	}
-	else
-	{
-		die($message);
 	}
 }
 
