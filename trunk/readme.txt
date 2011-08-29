@@ -3,7 +3,7 @@ Contributors: zuotian, Clifford Tatum
 Tags: bibliography, author profile, reference, academic, zotero
 Requires at least: 2.9.1
 Tested up to: 3.2.1
-Stable tag: 1.1
+Stable tag: 1.2
 
 Collaborative bibliography management for authors in WordPress.
 
@@ -66,14 +66,14 @@ You can use id and format in the same short code instance.
 == Installation ==
 
 
-1. Extract `bibliplug.zip` files and upload `bibliplug` folder to the `/wp-content/plugins/` directory. Or, you can install the plugin using WordPress "Install Plugins" admin interface.
+1. Extract `enhanced-bibliplug.zip` files and upload `enhanced-bibliplug` folder to the `/wp-content/plugins/` directory. Or, you can install the plugin using WordPress "Install Plugins" admin interface.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
 
 = Notes about author template =
 
-If you are using thesis 1.8 for your theme, please copy the content of bibliplug\template\author-loop.php to Thesis custom_functions.php. 
+If you are using thesis 1.8 for your theme, please copy the content of `enhanced-bibliplug\template\author-loop.php` to Thesis custom_functions.php. 
 
-Otherwise, copy the author.php to your theme folder.
+Otherwise, copy the `enhanced-bibliplug\template\author.php` to your theme folder.
 
 
 
@@ -89,7 +89,7 @@ To synchronize with Zotero, the server needs to have php curl modules installed 
 
 = Will my data be deleted during upgrade? =
 
-Deactivating or upgrade the plugin will not delete your bibligraphical data. 
+Deactivating or upgrade the plugin will not delete your bibliographical data. 
 
 
 == Screenshots ==
@@ -100,11 +100,19 @@ Deactivating or upgrade the plugin will not delete your bibligraphical data.
 
 == Upgrade Notice ==
 
+= 1.2 = 
+
+Fixed unique index issue that prevented bibliography table creation.
+
 = 1.1 =
 
 Add debugging support for zotero synchronization issues and support for paging through Zotero API results.
 
 == Changelog ==
+
+= 1.2 =
+
+* Fixed unique index issue that prevented bibliography table creation.
 
 = 1.1 =
 
