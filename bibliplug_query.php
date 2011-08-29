@@ -444,6 +444,7 @@ class bibliplug_query {
 	
 	public function insert_bibliography($field_values, $field_formats, $creators, $creators_formats) {
 		global $wpdb;
+		$this->fields_setup($field_values, $field_formats);
 		if ($wpdb->insert($this->bibliography_table, $field_values, $field_formats))
 		{
 			$insert_id = $wpdb->insert_id;
@@ -489,6 +490,7 @@ class bibliplug_query {
 	
 	public function update_bibliography($bib_id, $field_values, $field_formats) {
 		global $wpdb;
+		$this->fields_setup($field_values, $field_formats);
 		if (!$wpdb->update($this->bibliography_table, $field_values, array('id' => $bib_id), $field_formats, array('%d'))) {
 			/*print '<strong>Failed to update "'.$field_values['title'].'"</strong></br>';
 			$wpdb->print_error();
@@ -497,29 +499,6 @@ class bibliplug_query {
 			{
 				throw new exception($wpdb->last_error);
 			}
-		}
-	}
-
-	public function update_bibliography2($zotero_key, $field_values, $field_formats, $creators, $creators_formats) {
-		global $wpdb;
-
-		$bib_id = $wpdb->get_var("SELECT id FROM $this->bibliography_table WHERE zotero_key = \"$zotero_key\"");
-
-		if ($bib_id)
-		{
-			$wpdb->query("DELETE FROM $this->creators_table WHERE bib_id = $bib_id");
-			$this->update_bibliography($bib_id, $field_values, $field_formats);
-		}
-		else
-		{
-			$bib_id = $this->insert_bibliography($field_values, $field_formats, $creators, $creators_formats);
-		}
-		
-		foreach ($creators as $creator)
-		{
-			$creators_formats[] = '%d';
-			$creator['bib_id'] = $bib_id;
-			$wpdb->insert($this->creators_table, $creator, $creators_formats);
 		}
 	}
 	
@@ -584,7 +563,6 @@ class bibliplug_query {
 			publish_date varchar(64),
 			publish_year varchar(32),
 			short_title varchar(255),
-			url varchar(512),
 			access_date varchar(32),
 			call_number varchar(64),
 			section varchar(32),
@@ -600,18 +578,17 @@ class bibliplug_query {
 			keywords text,
 			running_time varchar(32),
 			series_title varchar(255),
-			link1 varchar(512),
-			link2 varchar(512),
-			link3 varchar(512),
+			url varchar(2048),
+			link1 varchar(2048),
+			link2 varchar(2048),
+			link3 varchar(2048),
 			city_of_publication varchar(255),
 			peer_reviewed tinyint(1) UNSIGNED DEFAULT 1,
-			zotero_key varchar(64),
+			zotero_key varchar(64) UNIQUE,
 			zotero_etag varchar(64),
+			unique_hash varchar(128) UNIQUE,
 			PRIMARY KEY (id),
-			FOREIGN KEY (type_id) REFERENCES '.$this->types_table.'(id),
-			UNIQUE INDEX (`type_id` ASC, `title` ASC, `conference_name` ASC),
-			UNIQUE INDEX (`type_id` ASC, `title` ASC, `publication_title` ASC),
-			UNIQUE INDEX (`zotero_key` ASC)
+			FOREIGN KEY (type_id) REFERENCES '.$this->types_table.'(id)
 			);';
 		$wpdb->query($create_table);
 	
@@ -635,20 +612,25 @@ class bibliplug_query {
 		
 	public function upgrade_schema()
 	{
+		global $wpdb;
 		$this->refresh_schema();
-
 		// $version = get_option('bibliplug_db_version');
 		if (BIBLIPLUG_VERSION == '1.1')
-		{			
-			global $wpdb;
-			$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `link1` `link1` varchar(512);");
-			$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `link2` `link2` varchar(512);");
-			$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `link3` `link3` varchar(512);");
-			$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `url` `url` varchar(512);");
+		{
+			$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `link1` `link1` varchar(2048);");
+			$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `link2` `link2` varchar(2048);");
+			$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `link3` `link3` varchar(2048);");
+			$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `url` `url` varchar(2048);");
 			$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `series` `series` varchar(255);");
 			
 			$wpdb->query("ALTER TABLE $this->zoteroconnections_table ADD `start` int;");
 			$wpdb->query("ALTER TABLE $this->zoteroconnections_table ADD `sync_time` varchar(32);");
+		}
+		
+		if (BIBLIPLUG_VERSION == '1.2')
+		{
+			// this is used if bibliography data is not dropped during upgrade.
+			$wpdb->query("ALTER TABLE $this->bibliography_table ADD `unique_hash` `unique_hash` varchar(128) UNIQUE;");
 		}
 	}
 	
@@ -778,6 +760,30 @@ class bibliplug_query {
 			}
 		}
 		fclose($data_source);
+	}
+	
+	private function fields_setup(&$field_values, &$field_formats)
+	{
+		if (!$field_values['title'])
+		{
+			// print_r($field_values);
+			throw new exception('Title cannot be empty.');
+		}
+		
+		$hash_value = $field_values['type_id'] . '-' . md5($field_values['title']);
+		
+		if ($field_values['publication_title'])
+		{
+			$hash_value .= '-' . md5($field_values['publication_title']);
+		}
+		
+		if ($field_values['conference_name'])
+		{
+			$hash_value .= '-' . md5($field_values['conference_name']);
+		}
+		
+		$field_values['unique_hash'] = $hash_value;
+		$field_formats[] = '%s';
 	}
 }
 ?>

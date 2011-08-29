@@ -32,36 +32,23 @@ if (!empty($_POST)) {
 	$creators = $_POST['creator'];
 	$creator_format = array('%d', '%d', '%s', '%s', '%s', '%s');
 
-	$data_type = (int) $_POST['type_id'];
-	if ($is_add || $bib->type_id != $data_type)
-	{
-		$data['type_id'] = $data_type;
-		$data_format[] = '%d';
-	}
+	$data['type_id'] = (int) $_POST['type_id'];
+	$data_format[] = '%d';
 
-	$peer_reviewed = isset($_POST['peer_reviewed'])? 1 : 0;
-	if ($is_add || $bib->peer_reviewed != $peer_reviewed)
-	{
-		$data['peer_reviewed'] = $peer_reviewed;
-		$data_format[] = '%d';
-	}
+	$data['peer_reviewed'] = isset($_POST['peer_reviewed'])? 1 : 0;
+	$data_format[] = '%d';
 
-	$post_fields = $bib_query->get_fields_by_type_id($data_type);
+	$post_fields = $bib_query->get_fields_by_type_id($data['type_id']);
 	foreach ($post_fields as $field) {
 		$field_name = $field->internal_name;
 		$value = $_POST[$field_name];
 
 		if (is_field_numeric($field_name))
 		{
-			$value = empty($value) ? 0 : (int) $value;
-
-			if($is_add || $bib->$field_name != $value)
-			{
-				$data[$field_name] = $value;
-				$data_format[] = '%d';
-			}
+			$data[$field_name] = empty($value) ? 0 : (int) $value;
+			$data_format[] = '%d';
 		}
-		else if ($is_add || $bib->$field_name != $value)
+		else
 		{
 			if ($value && ($field_name == 'link1' || $field_name == 'link2' || $field_name == 'link3' || $field_name == 'url')) {
 				$value = validate_url($value);
@@ -80,10 +67,7 @@ if (!empty($_POST)) {
 		{
 			case 'edit':
 				check_admin_referer('edit_reference');
-				if (!empty($data))
-				{
-					$bib_query->update_bibliography($bib_id, $data, $data_format);
-				}
+				$bib_query->update_bibliography($bib_id, $data, $data_format);
 
 				foreach ($creators as $creator_id => $creator)
 				{
@@ -134,13 +118,17 @@ if (!empty($_POST)) {
 	}
 	catch (exception $e)
 	{
-		print $e->getMessage();
 		if (strpos($e->getMessage(), "Duplicate entry") !== false)
 		{
 			$m = 3;
 		}
 		else
 		{
+			if (BIBLIPLUG_DEBUG)
+			{
+				print $e->getMessage();
+			}
+			
 			$m = 4;
 		}
 	}
@@ -154,21 +142,31 @@ $title = 'Edit your reference';
 $action = 'edit';
 $nonce_name = 'edit_reference';
 
-if (isset($_GET['id']) && $_GET['id']) {
-	$bib_id = (int) $_GET['id'];
+// if add didn't succeed, no need to set up bib.
+if (!$is_add || $m == 1 || $m == 2)
+{
+	if (isset($_GET['id']) && $_GET['id']) {
+		$bib_id = (int) $_GET['id'];
+	}
+	
+	$bib = $bib_query->get_reference($bib_id);
+	
+	if (!$bib) {
+		wp_die("Reference '$bib_id' not found.");
+	}
+	
+	$fields = $bib_query->get_fields_by_type_id($bib->type_id);
+	
+	// the post category meta box will try to look for a "ID" field.
+	$bib->ID = $bib->id;
+	$post_ID = $bib->id;
 }
-
-$bib = $bib_query->get_reference($bib_id);
-
-if (!$bib) {
-	wp_die("Reference '$bib_id' not found.");
+else 
+{
+	$action = 'add';
+	$nonce_name = 'add_reference';
+	$fields = $bib_query->get_fields_by_type_id();
 }
-
-$fields = $bib_query->get_fields_by_type_id($bib->type_id);
-
-// the post category meta box will try to look for a "ID" field.
-$bib->ID = $bib->id;
-$post_ID = $bib->id;
 
 include (BIBLIPLUG_DIR.'reference_form.php');
 
