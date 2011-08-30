@@ -630,7 +630,7 @@ class bibliplug_query {
 		if (BIBLIPLUG_VERSION == '1.2')
 		{
 			// this is used if bibliography data is not dropped during upgrade.
-			$wpdb->query("ALTER TABLE $this->bibliography_table ADD `unique_hash` `unique_hash` varchar(128) UNIQUE;");
+			$wpdb->query("ALTER TABLE $this->bibliography_table ADD `unique_hash` varchar(128) UNIQUE;");
 		}
 	}
 	
