@@ -3,7 +3,7 @@ Contributors: zuotian, Clifford Tatum
 Tags: bibliography, author profile, reference, academic, zotero
 Requires at least: 2.9.1
 Tested up to: 3.2.1
-Stable tag: 1.2
+Stable tag: 1.2.1
 
 Collaborative bibliography management for authors in WordPress.
 
@@ -109,6 +109,11 @@ Fixed unique index issue that prevented bibliography table creation.
 Add debugging support for zotero synchronization issues and support for paging through Zotero API results.
 
 == Changelog ==
+
+= 1.2.1 =
+
+* Fixed bug for bibliplug manager search.
+* Fixed bug in 1.2 upgrade code.
 
 = 1.2 =
 

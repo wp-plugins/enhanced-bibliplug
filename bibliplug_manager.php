@@ -57,7 +57,7 @@ $bib_manager->prepare_items();
 ?></h2>
 
 <form id="references-filter" action="" method="get">
-	<input type="hidden" name="page" value="bibliplug/bibliplug_manager.php" />
+	<input type="hidden" name="page" value="enhanced-bibliplug/bibliplug_manager.php" />
 	<?php $bib_manager->search_box('Search references', 'reference'); ?>
 	<?php $bib_manager->display(); ?>
 </form>
