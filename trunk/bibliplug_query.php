@@ -87,11 +87,6 @@ class bibliplug_query {
 		return $this->run_results_query($query);
 	}
 
-	public function get_bib_id_by_zotero_key($zotero_key)
-	{
-		return $this->run_var_query("SELECT id FROM $this->bibliography_table WHERE zotero_key = \"$zotero_key\"");
-	}
-
 	public function get_fields_by_type_id($type_id=1) {
 		$query = 'SELECT f.internal_name, f.name, f1.name AS mapped_name
 			FROM '.$this->typefields_table.' AS tf
@@ -141,11 +136,30 @@ class bibliplug_query {
 		// print '<div class = "query"><font color=green>get_the_creator_type_id</font><br>'.$query.'</div>';
 		return $this->run_var_query($query);
 	}
-
-	public function get_reference($bib_id, $format=OBJECT) {
-		$query = 'SELECT *
-				     FROM '.$this->bibliography_table.'
-				     WHERE id ='.$bib_id;
+	
+	public function get_reference($where=array(), $select=array(), $format=OBJECT) {
+		
+		if (empty($select))
+		{
+			$view = "*";
+		}
+		else 
+		{			
+			$view = "`" . implode("`, `", $select) . "`";			
+		}
+		
+		$query = "SELECT $view FROM $this->bibliography_table";
+		
+		if (!empty($where))
+		{
+			foreach($where as $name =>$value)
+			{
+				$conditions[] = "`$name` = '$value'";
+			}
+			
+			$query .= ' WHERE ' . join(' AND ', $conditions);
+		}
+		
 		return $this->run_row_query($query, $format);
 	}
 
@@ -442,7 +456,7 @@ class bibliplug_query {
 		$wpdb->query("DELETE FROM $this->creators_table WHERE bib_id = $bib_id");
 	}
 	
-	public function insert_bibliography($field_values, $field_formats, $creators, $creators_formats) {
+	public function insert_bibliography(&$field_values, &$field_formats, $creators, $creators_formats) {
 		global $wpdb;
 		$this->fields_setup($field_values, $field_formats);
 		if ($wpdb->insert($this->bibliography_table, $field_values, $field_formats))
@@ -488,7 +502,7 @@ class bibliplug_query {
 		return $wpdb->insert_id;
 	}
 	
-	public function update_bibliography($bib_id, $field_values, $field_formats) {
+	public function update_bibliography($bib_id, &$field_values, &$field_formats) {
 		global $wpdb;
 		$this->fields_setup($field_values, $field_formats);
 		if (!$wpdb->update($this->bibliography_table, $field_values, array('id' => $bib_id), $field_formats, array('%d'))) {
@@ -614,24 +628,32 @@ class bibliplug_query {
 	{
 		global $wpdb;
 		$this->refresh_schema();
-		// $version = get_option('bibliplug_db_version');
-		if (BIBLIPLUG_VERSION == '1.1')
+		$version = get_option('bibliplug_db_version', BIBLIPLUG_VERSION);
+		if (BIBLIPLUG_VERSION != $version)
 		{
-			$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `link1` `link1` varchar(2048);");
-			$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `link2` `link2` varchar(2048);");
-			$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `link3` `link3` varchar(2048);");
-			$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `url` `url` varchar(2048);");
-			$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `series` `series` varchar(255);");
-			
-			$wpdb->query("ALTER TABLE $this->zoteroconnections_table ADD `start` int;");
-			$wpdb->query("ALTER TABLE $this->zoteroconnections_table ADD `sync_time` varchar(32);");
+			if ($version == '1.1')
+			{
+				$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `link1` `link1` varchar(2048);");
+				$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `link2` `link2` varchar(2048);");
+				$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `link3` `link3` varchar(2048);");
+				$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `url` `url` varchar(2048);");
+				$wpdb->query("ALTER TABLE $this->bibliography_table CHANGE COLUMN `series` `series` varchar(255);");
+				
+				$wpdb->query("ALTER TABLE $this->zoteroconnections_table ADD `start` int;");
+				$wpdb->query("ALTER TABLE $this->zoteroconnections_table ADD `sync_time` varchar(32);");
+			}
+			else if ($version == '1.2' || $version == '1.2.1')
+			{
+				// this is used if bibliography data is not dropped during upgrade.
+				$wpdb->query("ALTER TABLE $this->bibliography_table ADD `unique_hash` varchar(128) UNIQUE;");
+				
+				// these two fields are missing if user didn't upgrade from 1.0 to 1.1.
+				$wpdb->query("ALTER TABLE $this->zoteroconnections_table ADD `start` int;");
+				$wpdb->query("ALTER TABLE $this->zoteroconnections_table ADD `sync_time` varchar(32);");
+			}
 		}
 		
-		if (BIBLIPLUG_VERSION == '1.2')
-		{
-			// this is used if bibliography data is not dropped during upgrade.
-			$wpdb->query("ALTER TABLE $this->bibliography_table ADD `unique_hash` varchar(128) UNIQUE;");
-		}
+		update_option('bibliplug_db_version', BIBLIPLUG_VERSION);
 	}
 	
 	private function refresh_schema($delete_data=false)
@@ -732,6 +754,8 @@ class bibliplug_query {
 			collection_id varchar(32),
 			collection_name varchar(256),
 			last_updated varchar(32),
+			start int,
+			sync_time varchar(32),
 			PRIMARY KEY (id)
 			);';
 		$wpdb->query($create_table);
