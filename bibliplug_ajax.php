@@ -7,7 +7,7 @@ function bibliplug_change_ref_type()
 	
 	if ($bib_id != -1)
 	{
-		$bib = $bib_query->get_reference($bib_id);
+		$bib = $bib_query->get_reference(array('id' => $bib_id));
 	}
 	
 	$type_id = intval($_POST['new_type_id']);
@@ -353,10 +353,11 @@ function bibliplug_sync_zotero()
 						}
 						else
 						{
-							$bib_id = $bib_query->get_bib_id_by_zotero_key($item_key);
+							$bib = $bib_query->get_reference(array('zotero_key' =>$item_key), array('id'));
 	
-							if ($bib_id)
+							if ($bib)
 							{
+								$bib_id = $bib->id;
 								$bib_query->update_bibliography($bib_id, $field_values, $field_formats);
 								$bib_query->delete_creators_from_bib_id($bib_id);
 								$authors_format[] = '%d';
@@ -381,19 +382,39 @@ function bibliplug_sync_zotero()
 				}
 				catch(exception $e)
 				{
-					//print $e->getMessage();
-					if (strpos($e->getMessage(), "Duplicate entry") !== false)
+					$error_message = $e->getMessage();
+					
+					if (BIBLIPLUG_DEBUG)
 					{
-						$result .= "<p class='bib_warning'>&nbsp;&nbsp;&nbsp;&nbsp;Warning: failed to insert reference '$title' because there's a duplicate entry.</p>";
-						$num_skipped++;
+						$result .= $error_message;
+					}
+					
+					if (strpos($error_message, "Duplicate entry") !== false)
+					{
+						// Retrieve the duplicate reference, and update ref category instead.						
+						if (strpos($error_message, "zotero_key")!== false)
+						{
+							$bib = $bib_query->get_reference(array('zotero_key' =>$item_key), array('id'));
+						}
+						else if (strpos($error_message, "unique_hash")!== false)
+						{
+							$bib = $bib_query->get_reference(array('unique_hash' => $field_values['unique_hash']), array('id'));
+						}
+						
+						if (bib)
+						{
+							wp_set_object_terms($bib->id, $connection->nick_name, 'ref_cat', true);
+							$result .= "<p class='bib_warning'>&nbsp;&nbsp;&nbsp;&nbsp;Notice: Reference '$title' exists in the database. Added category '$connection->nick_name' to reference instead.</p>";
+							$num_updated++;
+						}
+						else
+						{
+							$result .= "<p class='bib_warning'>&nbsp;&nbsp;&nbsp;&nbsp;Warning: failed to insert reference '$title' because there's a duplicate entry.</p>";
+							$num_skipped++;
+						}
 					}
 					else
 					{
-						if (BIBLIPLUG_DEBUG) 
-						{
-							$result .= $e->getMessage();
-						}
-						
 						$result .= "<p class='bib_error'>&nbsp;&nbsp;&nbsp;&nbsp;Error: failed to " . (($add) ? "insert" : "update") . " reference '$title'.</p>";
 						$num_errors++;
 					}

@@ -21,7 +21,7 @@ if (!empty($_POST)) {
 	}
 
 	if ($action == 'edit') {
-		$bib = $bib_query->get_reference($bib_id);
+		$bib = $bib_query->get_reference(array('id' => $bib_id));
 		$is_add = false;
 
 		if (!$bib) {
@@ -149,7 +149,7 @@ if (!$is_add || $m == 1 || $m == 2)
 		$bib_id = (int) $_GET['id'];
 	}
 	
-	$bib = $bib_query->get_reference($bib_id);
+	$bib = $bib_query->get_reference(array('id' => $bib_id));
 	
 	if (!$bib) {
 		wp_die("Reference '$bib_id' not found.");

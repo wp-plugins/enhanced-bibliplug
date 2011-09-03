@@ -3,7 +3,7 @@ Contributors: zuotian, Clifford Tatum
 Tags: bibliography, author profile, reference, academic, zotero
 Requires at least: 2.9.1
 Tested up to: 3.2.1
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 
 Collaborative bibliography management for authors in WordPress.
 
@@ -82,6 +82,9 @@ You're done!
 
 == Frequently Asked Questions ==
 
+= Ask a question / report a bug =
+
+Please visit [enhanced bibliplug](http://ep-books.ehumanities.nl/semantic-words/enhanced-bibliplug) and leave a comment.
 
 = Cannot add/sync Zotero connection =
 
@@ -98,17 +101,12 @@ Deactivating or upgrade the plugin will not delete your bibliographical data.
 2. Connect to Zotero
 3. Author profile template
 
-== Upgrade Notice ==
-
-= 1.2 = 
-
-Fixed unique index issue that prevented bibliography table creation.
-
-= 1.1 =
-
-Add debugging support for zotero synchronization issues and support for paging through Zotero API results.
-
 == Changelog ==
+
+= 1.2.2 =
+
+* Fixed bug for zotero sync when collection has more than 50 items.
+* Changed the logic for syncing duplicate entries in zotero connectios, allowing the same reference linked to multiple collections.
 
 = 1.2.1 =
 
