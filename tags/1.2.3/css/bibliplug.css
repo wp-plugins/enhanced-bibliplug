@@ -1,0 +1,18 @@
+/* for author page */
+.bibliplug-author_avatar { padding-right:30px; float:left; }
+.bibliplug-authors td { border-width: medium; padding: 1em; border-color:Red;}
+
+/* for chicago stype display */
+.reference #title { font-style:italic; }
+.reference #notes { display:none; }
+
+/* for journal articles */
+.journal_article #title { font-style:normal; }
+.journal_article #publication_title { font-style:italic; }
+
+/* for book sections */
+.book_section #title { font-style:normal; }
+.book_section #book_title { font-style:italic; }
+
+/* for conference paper */
+.conference_paper #title { font-style:normal; }
