@@ -335,7 +335,7 @@ class import_format_helper {
 							
 							if (BIBLIPLUG_DEBUG)
 							{
-								print "<p>Warning: unhandled field '$key' with value '$value' for reference '{$data['title']}'.</p>";
+								print "<p>Warning: Unsupported field '$key' with value '$value' for reference '{$data['title']}' is added to notes.</p>";
 							}
 						}
 						break;
@@ -429,8 +429,10 @@ class import_format_helper {
 			case 'videoRecording':
 				return 11;
 
+			case 'note':
+			case 'snapshot':
 			case 'attachment':
-				throw new exception("Attachments are ignored.");
+				throw new exception("$type_name is ignored.");
 				
 			default:
 				return 0;

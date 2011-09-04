@@ -3,7 +3,7 @@ Contributors: zuotian, Clifford Tatum
 Tags: bibliography, author profile, reference, academic, zotero, res-comms
 Requires at least: 2.9.1
 Tested up to: 3.2.1
-Stable tag: 1.2.2
+Stable tag: 1.2.3
 
 Collaborative bibliography management for authors in WordPress.
 
@@ -102,6 +102,10 @@ Deactivating or upgrade the plugin will not delete your bibliographical data.
 3. Author profile template
 
 == Changelog ==
+
+= 1.2.3 =
+
+* Fixed bug for zotero sync where synchronization stopped after 2 pages (100 items).
 
 = 1.2.2 =
 
