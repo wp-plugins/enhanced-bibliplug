@@ -217,10 +217,12 @@ function bibliplug_sync_zotero()
 			}
 			else
 			{
+				// Use getItemsTop instead of getItems to ignore attachments/notes/snapshots.
 				$xml = $zotero->getItemsTop(
 						$connection->account_id,
 						$parameters,
-						$connection->account_type);
+						$connection->account_type,
+						$headers);
 			}
 	
 			if ($zotero->getResponseStatus() == 304)
@@ -255,11 +257,9 @@ function bibliplug_sync_zotero()
 				continue 2;
 			}
 			
-			if (!$start_position) {
-				// first time in do loop.
-				$totalResults = $doc->getElementsByTagNameNS('http://zotero.org/ns/api', 'totalResults')->item(0)->nodeValue;
-				$message .= "<p><strong>Number of references found in top-level items: $totalResults</strong></p>";
-			}
+			$totalResults = $doc->getElementsByTagNameNS('http://zotero.org/ns/api', 'totalResults')->item(0)->nodeValue;
+			$message .= "<p><strong>Number of references found in top-level items: $totalResults</strong></p>";
+			$message .= "<p><strong>Number of references synchronized: $start_position</strong></p>";
 			
 			$entries = $xpath->query("//atom:entry");		
 			$message .= "<p><strong>Number of references retrieved: $entries->length</strong></p>";
