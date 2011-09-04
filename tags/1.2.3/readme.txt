@@ -1,5 +1,5 @@
 === Enhanced BibliPlug ===
-Contributors: zuotian, Clifford Tatum
+Contributors: zuotian, tatum.cc
 Tags: bibliography, author profile, reference, academic, zotero, res-comms
 Requires at least: 2.9.1
 Tested up to: 3.2.1
