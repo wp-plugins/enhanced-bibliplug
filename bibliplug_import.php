@@ -58,7 +58,7 @@ if (isset($_GET['action']))
 			
 			if ($first) 
 			{
-				// remove BOM for UTF-8 files. This should not be neccessary for 
+				// remove BOM for UTF-8 files. This should not be necessary for
 				// PHP 6.0 or later.
 				$line = str_replace("\xef\xbb\xbf", '', $line);
 				$first = false;
@@ -162,7 +162,7 @@ if (isset($_GET['action']))
 <br class="clear" />
 	<h4>Import references in RIS format only.</h4>
 <form method="post" enctype="multipart/form-data" 
-	action="<?php echo admin_url('admin.php?page=bibliplug/bibliplug_import.php&action=upload-ris'); ?>">
+	action="<?php echo admin_url('admin.php?page=bibliplug/enhanced-bibliplug_import.php&action=upload-ris'); ?>">
 	<?php wp_nonce_field('bibliplug-import'); ?>		
 	<label class="screen-reader-text" for="risfile">Bibliography file</label>
 	<input type="file" id="risfile" name="risfile" />
