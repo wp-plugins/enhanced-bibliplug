@@ -3,13 +3,13 @@ Contributors: zuotian, tatum.cc
 Tags: bibliography, author profile, reference, academic, zotero, res-comms
 Requires at least: 2.9.1
 Tested up to: 3.2.1
-Stable tag: 1.2.4
+Stable tag: 1.2.5
 
 Collaborative bibliography management for authors in WordPress.
 
 == Description ==
 
-Enhanced Bibliplug creates a central repository for researchers to organize and display their academic work either individualy or in a collaborative environment. This plugin is designed to synchronize with Zotero accounts.
+Enhanced Bibliplug creates a central repository for researchers to organize and display their academic work either individually or in a collaborative environment. This plugin is designed to synchronize with Zotero accounts.
 
 Key features include:
 
@@ -102,6 +102,10 @@ Deactivating or upgrade the plugin will not delete your bibliographical data.
 3. Author profile template
 
 == Changelog ==
+
+= 1.2.5 =
+
+* Fixed the rich text editor for profile page.
 
 = 1.2.4 =
 

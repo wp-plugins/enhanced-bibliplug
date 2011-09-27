@@ -27,12 +27,5 @@ div#col-right { width: 73%; }
 .bib_warning { color:purple; }
 .bib_error { color:red; }
 
-/* CSS for TinyMCE for Profile page */
-#profile-page #your-profile .form-table .visual,
-#profile-page #your-profile .form-table .plain { float: right; margin-top: -25px; border:1px solid #DFDFDF; border-bottom-color: #E9E9E9; text-decoration: none; padding: 1px 20px 4px; -moz-border-radius: 3px 3px 0px 0px	; /* FF1+ */ -webkit-border-radius: 3px; /* Saf3+, Chrome */ border-radius: 3px; /* Opera 10.5, IE 9 */ background: #F1F1F1; color:#999; }
-#profile-page #your-profile .form-table .visual { margin-right: 2px; }
-#profile-page #your-profile .form-table .plain { margin-right:0px; }
-
 /* settings for a large TinyMCE are on the Profile page */ 
-#profile-page .form-table #author_bio { width: 100%; height: 325px; margin-top: -2px; border:0; border-bottom:1px solid #000; border-top:33px solid #E9E9E9; }
-#profile-page #your-profile .form-table a.active { background: #E9E9E9; border-color: #DFDFDF; color:#333; border-bottom-color: #E9E9E9; }
+#profile-page .form-table #author_bio { width: 100%; margin: 0;}

@@ -4,7 +4,7 @@
   Plugin Name: Enhanced BibliPlug
   Plugin URI: http://ep-books.ehumanities.nl/semantic-words/enhanced-bibliplug
   Description: Collaborative bibliography management for WordPress.
-  Version: 1.2.4
+  Version: 1.2.5
   Author: Zuotian Tatum, Clifford Tatum
  */
 
@@ -27,7 +27,7 @@
 
 if (!defined('BIBLIPLUG_VERSION'))
 {
-	define('BIBLIPLUG_VERSION', '1.2.4');
+	define('BIBLIPLUG_VERSION', '1.2.5');
 }
 
 if (!defined('BIBLIPLUG_DIR'))
@@ -80,9 +80,6 @@ add_action('wp_head', 'bibliplug_head');
 // this filter will remove any additional contact fields such AIM from the profile page
 add_filter('user_contactmethods', 'bibliplug_contact_filter');
 
-// this function will use ajax callback to add additional fields for the profile page.
-add_action('wp_ajax_bibliplug_user_extra', 'bibliplug_user_extra');
-
 // these functions will use ajax callback to add/sync/delete zotero connections.
 add_action('wp_ajax_bibliplug_sync_zotero', 'bibliplug_sync_zotero');
 add_action('wp_ajax_bibliplug_add_connection', 'bibliplug_add_connection');
@@ -101,6 +98,11 @@ add_action('edit_user_profile_update', 'bibliplug_user_edit');
 // the function will change user's display_name to first last format.
 add_action('user_register', 'bibliplug_user_display_name');
 add_action('profile_update', 'bibliplug_user_display_name');
+
+// the function will add addition fields and a rich text editor for the profile page.
+add_action('show_user_profile', 'bibliplug_user_profile');
+add_action('edit_user_profile', 'bibliplug_user_profile');
+
 
 
 /* ---------------------------------------------------------------------
@@ -182,10 +184,8 @@ function bibliplug_admin_init()
 	}
 	else if ($pagenow == 'profile.php' || $pagenow == 'user-edit.php')
 	{
-		wp_enqueue_script('bibliplug_profile', plugins_url("/enhanced-bibliplug/js/profile.$js_suffix"), array('jquery', 'wp-ajax-response'));
-		wp_enqueue_script('tiny_mce');
+		wp_enqueue_script('bibliplug_profile', plugins_url("/enhanced-bibliplug/js/profile.$js_suffix"), array('jquery'));
 		wp_enqueue_style('bibliplug_admin_css', plugins_url('/enhanced-bibliplug/css/bibliplug-admin.css'), 'css');
-		add_action('admin_print_footer_scripts', 'wp_tiny_mce', 25);
 	}
 	else if ($pagenow == 'options-general.php' && $subpage == 'enhanced-bibliplug/bibliplug_options.php')
 	{
@@ -417,6 +417,50 @@ function bibliplug_init()
 		'query_var' => true,
 		'rewrite' => array('slug' => 'reg_tag'),
 	));
+}
+
+function bibliplug_user_profile($profileuser)
+{
+	// print out what we need now and use js to change their positions.
+	?><table id="bibliplug_author_name_extra">
+		<tr>
+			<th><label for='middle_name'><?php echo _('Middle Name'); ?></label></th>
+			<td><input name='middle_name' type='text' id='middle_name' class='regular-text' value='<?php echo $profileuser->middle_name; ?>'/></td>
+		</tr>
+		<tr>
+			<th><label for='prefix'><?php echo _('Prefix'); ?></label></th>
+			<td><input name='prefix' type='text' id='prefix' class='regular-text' value='<?php echo $profileuser->prefix; ?>' /></td>
+		</tr>
+	</table>
+	
+	<table id="bibliplug_author_description_extra">
+		<tr>
+			<th><label for='researcher_id'>ResearcherID</label></th>
+			<td>
+				<input name='researcher_id' type='text' id='researcher_id' class='regular-text' value='<?php echo $profileuser->researcher_id; ?>' /><br />
+				<span class='description'>ResearcherID is an unique identifier for scientific authors introduced by <a href='http://thomsonreuters.com/'>Thomson Reuters.</a></span>
+			</td>
+		</tr>
+		<tr>
+			<th><label for='dai'>DAI</label></th>
+			<td>
+				<input name='dai' type='text' id='dai' class='regular-text' value='<?php echo $profileuser->dai; ?>' /><br />
+				<span class='description'>The Digital Author Identification (DAI) is a unique national number for every author active within the Dutch research system.</span>
+			</td>
+		</tr>
+		<tr>
+			<th><label for='affiliation'>Title and Affiliation</label></th>
+			<td><textarea id='affiliation' name='affiliation' rows='5'><?php echo $profileuser->affiliation; ?></textarea></td>
+		</tr>
+		<tr>
+			<th><label for='author_bio'>Author Bio</label></th>
+			<td>
+				<?php wp_editor(html_entity_decode($profileuser->author_bio), 'author_bio'); ?>
+				<br/>
+				<span class='description'>Share a little biographical information to fill out your profile. This may be shown publicly.</span>
+			</td>
+		</tr>
+	</table><?php
 }
 
 include('bibliplug_ajax.php');
