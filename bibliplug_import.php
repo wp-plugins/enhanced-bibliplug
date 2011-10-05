@@ -25,9 +25,8 @@ if (isset($_GET['action']))
 		require_once(BIBLIPLUG_DIR.'/format_helper/import_format_helper.php');
 	}
 
-	global $current_user, $parser_helper, $bib_query, $wpdb;
-	get_currentuserinfo();
-	if ($current_user->user_level < 8) 
+	global $bib_query, $wpdb;
+	if (!current_user_can('administrator')) 
 	{
 		wp_die('You are not allowed to import files.');
 	}
@@ -162,7 +161,7 @@ if (isset($_GET['action']))
 <br class="clear" />
 	<h4>Import references in RIS format only.</h4>
 <form method="post" enctype="multipart/form-data" 
-	action="<?php echo admin_url('admin.php?page=bibliplug/enhanced-bibliplug_import.php&action=upload-ris'); ?>">
+	action="<?php echo admin_url('admin.php?page=enhanced-bibliplug/bibliplug_import.php&action=upload-ris'); ?>">
 	<?php wp_nonce_field('bibliplug-import'); ?>		
 	<label class="screen-reader-text" for="risfile">Bibliography file</label>
 	<input type="file" id="risfile" name="risfile" />
