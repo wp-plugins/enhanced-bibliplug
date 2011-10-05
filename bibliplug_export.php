@@ -16,7 +16,7 @@ $parent_file = 'bibliplug_edit.php';
 
 	<form method="post" action="<?php echo admin_url('admin-ajax.php?action=bibliplug_export'); ?>">
 		<br>
-		<h5>Filter by:</h5>
+		<h4>Filter by:</h4>
 		<table>
 			<tr>
 				<td>Author last name</td>
@@ -49,6 +49,5 @@ $parent_file = 'bibliplug_edit.php';
 		</table>
 		<p class="submit">
 			<input type="submit" name="submit" class="button" value="Export" />
-			<input type="hidden" name="action" value="export" />
 		</p>
 	</form>

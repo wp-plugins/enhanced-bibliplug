@@ -4,7 +4,7 @@
   Plugin Name: Enhanced BibliPlug
   Plugin URI: http://ep-books.ehumanities.nl/semantic-words/enhanced-bibliplug
   Description: Collaborative bibliography management for WordPress.
-  Version: 1.2.5
+  Version: 1.2.6
   Author: Zuotian Tatum, Clifford Tatum
  */
 
@@ -27,7 +27,7 @@
 
 if (!defined('BIBLIPLUG_VERSION'))
 {
-	define('BIBLIPLUG_VERSION', '1.2.5');
+	define('BIBLIPLUG_VERSION', '1.2.6');
 }
 
 if (!defined('BIBLIPLUG_DIR'))
@@ -455,7 +455,17 @@ function bibliplug_user_profile($profileuser)
 		<tr>
 			<th><label for='author_bio'>Author Bio</label></th>
 			<td>
-				<?php wp_editor(html_entity_decode($profileuser->author_bio), 'author_bio'); ?>
+				<?php 
+					if (!function_exists('wp_editor'))
+					{
+						the_editor(html_entity_decode($profileuser->author_bio), 'author_bio'); 
+					}
+					else
+					{
+						// since wp version 3.3
+						wp_editor(html_entity_decode($profileuser->author_bio), 'author_bio');
+					}
+				?>
 				<br/>
 				<span class='description'>Share a little biographical information to fill out your profile. This may be shown publicly.</span>
 			</td>

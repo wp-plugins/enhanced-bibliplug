@@ -471,7 +471,7 @@ function bibliplug_export()
 		wp_die('You do not have sufficient permissions to manage bibliography.');
 	}
 
-	if (isset($_POST['action']) && $_POST['action'] == 'export')
+	if (isset($_POST['submit']) && $_POST['submit'] == 'Export')
 	{
 		global $bib_query;
 		if (!defined(BIB_LAST_NAME_FORMAT))

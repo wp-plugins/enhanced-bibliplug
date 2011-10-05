@@ -192,7 +192,7 @@ class bibliplug_query {
 		
 		$query .= ' FROM '.$this->bibliography_table.' AS d';
 		$query .= ' INNER JOIN '.$this->types_table.' AS t ON d.type_id = t.id';
-		$query .= ' INNER JOIN '.$this->creators_table.' AS c ON c.bib_id = d.id AND c.order_index =1';
+		$query .= ' INNER JOIN '.$this->creators_table.' AS c ON c.bib_id = d.id AND c.order_index = 0';
 
 		if ($last_name || $first_name)
 		{
