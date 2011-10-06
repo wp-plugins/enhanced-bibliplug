@@ -4,7 +4,7 @@
   Plugin Name: Enhanced BibliPlug
   Plugin URI: http://ep-books.ehumanities.nl/semantic-words/enhanced-bibliplug
   Description: Collaborative bibliography management for WordPress.
-  Version: 1.2.7
+  Version: 1.2.8
   Author: Zuotian Tatum, Clifford Tatum
  */
 
@@ -27,7 +27,7 @@
 
 if (!defined('BIBLIPLUG_VERSION'))
 {
-	define('BIBLIPLUG_VERSION', '1.2.7');
+	define('BIBLIPLUG_VERSION', '1.2.8');
 }
 
 if (!defined('BIBLIPLUG_DIR'))
@@ -167,8 +167,7 @@ function bibliplug_admin_init()
 	{
 		if ($subpage == 'enhanced-bibliplug/bibliplug_add.php' || $subpage == 'enhanced-bibliplug/bibliplug_edit.php')
 		{
-			wp_enqueue_script('postbox');
-			wp_enqueue_script('bibliplug_ajax', plugins_url("/enhanced-bibliplug/js/bibliplug_ajax.$js_suffix"), array('jquery', 'jquery-ui-sortable', 'quicktags', 'postbox'));
+			wp_enqueue_script('bibliplug_ajax', plugins_url("/enhanced-bibliplug/js/bibliplug_ajax.$js_suffix"), array('jquery', 'jquery-ui-sortable', 'post', 'quicktags', 'postbox'));
 			wp_enqueue_style('bibliplug_admin_css', plugins_url('/enhanced-bibliplug/css/bibliplug-admin.css'), 'css');
 			wp_enqueue_style('bibliplug_css', plugins_url('/enhanced-bibliplug/css/bibliplug.css'), 'css');
 		}

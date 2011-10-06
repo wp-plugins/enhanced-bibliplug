@@ -18,14 +18,16 @@
 	}
 
 	delete_connection = function() {
-		$('div#sync_progress').show();
-		$('div#sync_result').empty();
-		var id = $(this).val();
-		$.get(ajaxurl + '?action=bibliplug_delete_connection&id=' + id, null, function(response){
-			$('div#sync_progress').hide();
-			$('div#sync_result').append(response);
-			$('tr#zotero_account-' + id).remove();
-		});
+		if (confirm("You are about to delete the connection and local copies of the references in this connection.")) {
+			$('div#sync_progress').show();
+			$('div#sync_result').empty();
+			var id = $(this).val();
+			$.get(ajaxurl + '?action=bibliplug_delete_connection&id=' + id, null, function(response){
+				$('div#sync_progress').hide();
+				$('div#sync_result').append(response);
+				$('tr#zotero_account-' + id).remove();
+			});
+		}
 	}
 
 })(jQuery);
@@ -46,6 +48,10 @@ jQuery(document).ready(function($) {
 		}
 
 		$.post(ajaxurl + '?action=bibliplug_add_connection', form.serialize(), function(response){
+			
+			// remove the empty row if it is present
+			$('table.Connections').find('tr.no-items').remove();
+			
 			var newRow = $(response);
 			var lastRow = $('table.Connections').find('tr').last();
 			if (!lastRow.hasClass('alternate')) {
