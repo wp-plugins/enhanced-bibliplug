@@ -101,7 +101,7 @@ Deactivating or upgrade the plugin will not delete your bibliographical data.
 2. Connect to Zotero
 3. Author profile template
 
-== Changelog 
+== Changelog ==
 
 = 1.2.8 =
 
