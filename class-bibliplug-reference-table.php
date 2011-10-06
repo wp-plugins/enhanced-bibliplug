@@ -120,7 +120,7 @@ class Bibliplug_Reference_List_Table extends WP_List_Table
 
 					case 'title':
 						$attributes = 'class="post-title column-title" ';
-						?><td <?php echo $attributes ?>><strong><a class="row-title" href="<?php echo $edit_link; ?>" title="<?php echo esc_attr(sprintf(__('Edit &#8220;%s&#8221;'), $title)); ?>"><? echo $title ?></a></strong><?
+						?><td <?php echo $attributes ?>><strong><a class="row-title" href="<?php echo $edit_link; ?>" title="<?php echo esc_attr(sprintf(__('Edit &#8220;%s&#8221;'), $title)); ?>"><?php echo $title ?></a></strong><?php
 						$actions = array();
 						$actions['edit'] = '<a href="' . $edit_link . '" title="' . esc_attr(__('Edit this reference')) . '">' . __('Edit') . '</a>';
 						$actions['delete'] = '<a class="submitdelete" title="Delete this reference." href="' . wp_nonce_url("admin.php?page=enhanced-bibliplug/bibliplug_manager.php&action=delete&bib_id=$ref->id&paged=$page", 'delete-bib_' . $ref->id) . '" onclick="if(confirm(\'' . esc_js(sprintf("You are about to delete reference '%s'\n 'Cancel' to stop, 'OK' to delete.", $title)) . '\')) { return true;}return false;">Delete</a>';

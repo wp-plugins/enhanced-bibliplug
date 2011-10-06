@@ -48,7 +48,7 @@ $bib_manager->prepare_items();
 
 <div class="wrap">
 <?php screen_icon('edit'); ?>
-<h2><?
+<h2><?php
 	echo esc_html($title);
 	if ($search) 
     {

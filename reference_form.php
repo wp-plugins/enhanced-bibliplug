@@ -1,4 +1,4 @@
-<?
+<?php
 
 if ($m) {
 	switch ($m) {

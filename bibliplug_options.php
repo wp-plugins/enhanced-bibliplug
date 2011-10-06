@@ -49,7 +49,7 @@ $is_debug = get_option('bibliplug_debug') != '0';
 	<?php screen_icon(); ?>
 	<h2><?php echo esc_html( $title ); ?></h2>
 
-	<form class="biblioplug_option" action="<? admin_url("admin.php?page=bibliplug/bibliplug_options"); ?>" method="post">
+	<form class="biblioplug_option" action="<?php admin_url("admin.php?page=bibliplug/bibliplug_options"); ?>" method="post">
 		<?php wp_nonce_field('bibliplug_options'); ?>
 		<h3>Version</h3>
 		<p>
