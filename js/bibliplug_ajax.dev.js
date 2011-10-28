@@ -72,8 +72,7 @@
 				stop : function(event, ui) {
 					refreshOrder();
 				}
-			})
-			.disableSelection();
+			});
 	});
 
 })(jQuery);

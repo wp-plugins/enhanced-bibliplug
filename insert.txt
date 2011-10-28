@@ -59,6 +59,7 @@ INSERT INTO %sbibliplug_fields(id, name, internal_name) VALUES(42, 'link3', 'lin
 INSERT INTO %sbibliplug_fields(id, name, internal_name) VALUES(43, 'peer reviewed', 'peer_reviewed')
 INSERT INTO %sbibliplug_fields(id, name, internal_name) VALUES(44, 'journal title', 'journal_title')
 INSERT INTO %sbibliplug_fields(id, name, internal_name) VALUES(45, 'number of pages', 'number_of_pages')
+INSERT INTO %sbibliplug_fields(id, name, internal_name) VALUES(46, 'blog title', 'blog_title')
 
 // data for type field mapping table.
 // for generic type (other)
@@ -234,10 +235,11 @@ INSERT INTO %sbibliplug_typefields(type_id, field_id, order_index) VALUES(6, 39,
 INSERT INTO %sbibliplug_typefields(type_id, field_id, order_index) VALUES(7, 3, 0)
 INSERT INTO %sbibliplug_typefields(type_id, field_id, order_index) VALUES(7, 1, 1)
 INSERT INTO %sbibliplug_typefields(type_id, field_id, order_index) VALUES(7, 24, 2)
-INSERT INTO %sbibliplug_typefields(type_id, field_id, order_index) VALUES(7, 10, 3)
-INSERT INTO %sbibliplug_typefields(type_id, field_id, order_index) VALUES(7, 27, 4)
-INSERT INTO %sbibliplug_typefields(type_id, field_id, order_index) VALUES(7, 28, 5)
-INSERT INTO %sbibliplug_typefields(type_id, field_id, order_index) VALUES(7, 39, 6)
+INSERT INTO %sbibliplug_typefields(type_id, field_id, display_field_id, order_index) VALUES(7, 30, 46,  3)
+INSERT INTO %sbibliplug_typefields(type_id, field_id, order_index) VALUES(7, 10, 4)
+INSERT INTO %sbibliplug_typefields(type_id, field_id, order_index) VALUES(7, 27, 5)
+INSERT INTO %sbibliplug_typefields(type_id, field_id, order_index) VALUES(7, 28, 6)
+INSERT INTO %sbibliplug_typefields(type_id, field_id, order_index) VALUES(7, 39, 7)
 
 // for report
 INSERT INTO %sbibliplug_typefields(type_id, field_id, order_index) VALUES(8, 3, 0)
@@ -370,12 +372,15 @@ INSERT INTO %sbibliplug_typecreatortypes(type_id, creatortype_id, order_index) V
 // thesis
 INSERT INTO %sbibliplug_typecreatortypes(type_id, creatortype_id, order_index) VALUES(6, 1, 0)
 INSERT INTO %sbibliplug_typecreatortypes(type_id, creatortype_id, order_index) VALUES(6, 2, 1)
+// blog post
+INSERT INTO %sbibliplug_typecreatortypes(type_id, creatortype_id, order_index) VALUES(7, 1, 0)
+INSERT INTO %sbibliplug_typecreatortypes(type_id, creatortype_id, order_index) VALUES(7, 2, 1)
 // report 
 INSERT INTO %sbibliplug_typecreatortypes(type_id, creatortype_id, order_index) VALUES(8, 1, 0)
 INSERT INTO %sbibliplug_typecreatortypes(type_id, creatortype_id, order_index) VALUES(8, 2, 1)
 // web page
 INSERT INTO %sbibliplug_typecreatortypes(type_id, creatortype_id, order_index) VALUES(9, 1, 0)
-INSERT INTO %sbibliplug_typecreatortypes(type_id, creatortype_id, order_index) VALUES(10, 2, 1)
+INSERT INTO %sbibliplug_typecreatortypes(type_id, creatortype_id, order_index) VALUES(9, 2, 1)
 // for computer programming
 INSERT INTO %sbibliplug_typecreatortypes(type_id, creatortype_id, order_index) VALUES(10, 12, 0)
 // video recording

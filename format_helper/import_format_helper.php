@@ -459,6 +459,7 @@ class import_format_helper {
 			case 'bookTitle':
 			case 'forumTitle':
 			case 'proceedingsTitle':
+			case 'blogTitle':
 				return 'publication_title';
 			case 'seriesTitle':
 				return 'series_title';

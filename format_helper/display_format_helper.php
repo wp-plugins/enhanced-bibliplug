@@ -154,6 +154,7 @@ class display_format_helper
 						$connector = ':';
 						break;
 
+					case 'blog title':
 					case 'journal title':
 					case 'publication title':
 						$link = $bib->link3;

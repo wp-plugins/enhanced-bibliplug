@@ -4,7 +4,7 @@
   Plugin Name: Enhanced BibliPlug
   Plugin URI: http://ep-books.ehumanities.nl/semantic-words/enhanced-bibliplug
   Description: Collaborative bibliography management for WordPress.
-  Version: 1.2.8
+  Version: 1.2.9
   Author: Zuotian Tatum, Clifford Tatum
  */
 
@@ -27,7 +27,7 @@
 
 if (!defined('BIBLIPLUG_VERSION'))
 {
-	define('BIBLIPLUG_VERSION', '1.2.8');
+	define('BIBLIPLUG_VERSION', '1.2.9');
 }
 
 if (!defined('BIBLIPLUG_DIR'))
@@ -162,7 +162,7 @@ function bibliplug_admin_init()
 {
 	global $pagenow;
 	$subpage = $_GET['page'];
-	$js_suffix = SCRIPT_DEBUG ? "dev.js" : "js";
+	$js_suffix = BIBLIPLUG_DEBUG ? "dev.js" : "js";
 	if ($pagenow == 'admin.php')
 	{
 		if ($subpage == 'enhanced-bibliplug/bibliplug_add.php' || $subpage == 'enhanced-bibliplug/bibliplug_edit.php')
@@ -457,7 +457,11 @@ function bibliplug_user_profile($profileuser)
 				<?php 
 					if (!function_exists('wp_editor'))
 					{
-						the_editor(html_entity_decode($profileuser->author_bio), 'author_bio'); 
+						// workaround for wp 3.2.1
+						// the_editor(html_entity_decode($profileuser->author_bio), 'author_bio') does not work
+						// because javascripts and html are not wel seperated in the TinyMCE, causing javascript injection
+						// when relocating the TinyMCE editing area after page loading.
+						?><textarea id="author_bio" name="author_bio" rows="10"><?php echo $profileuser->author_bio; ?></textarea><?php
 					}
 					else
 					{

@@ -1,9 +1,9 @@
 === Enhanced BibliPlug ===
 Contributors: zuotian, tatum.cc
 Tags: bibliography, author profile, reference, academic, zotero, res-comms
-Requires at least: 2.9.1
+Requires at least: 3.1
 Tested up to: 3.2.1
-Stable tag: 1.2.8
+Stable tag: 1.2.9
 
 Collaborative bibliography management for authors in WordPress.
 
@@ -101,7 +101,13 @@ Deactivating or upgrade the plugin will not delete your bibliographical data.
 2. Connect to Zotero
 3. Author profile template
 
-== Changelog 
+== Changelog ==
+
+= 1.2.9 =
+
+* Added support for blog title.
+* Fixed bug where authors are not editable in the reference form. 
+* Disabled rich text editor in the profile page for WP version < 3.3. The feature will automatically show up when upgraded to 3.3.
 
 = 1.2.8 =
 
