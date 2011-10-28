@@ -36,7 +36,7 @@ add_meta_box('previewdiv', 'Preview', 'bibliplug_preview_meta_box', 'bibliplug',
 add_meta_box('updatediv', 'Save changes', 'bibliplug_save_meta_box', 'bibliplug', 'side', 'core');
 
 add_meta_box('categorydiv-ref_cat', 'Reference categories', 'post_categories_meta_box', 'bibliplug', 'side', 'low', array('taxonomy' => 'ref_cat'));
-add_meta_box('tagsdiv-ref_tag', 'Referece Tags', 'post_tags_meta_box', 'bibliplug', 'side', 'low', array('taxonomy' => 'ref_tag'));
+add_meta_box('tagsdiv-ref_tag', 'Reference Tags', 'post_tags_meta_box', 'bibliplug', 'side', 'low', array('taxonomy' => 'ref_tag'));
 
 function bibliplug_creators_meta_box() {
 	echo '<div id="bibliplug_creators_meta_box">';
