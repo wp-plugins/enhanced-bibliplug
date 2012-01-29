@@ -71,9 +71,13 @@ if (!empty($_POST)) {
 
 				foreach ($creators as $creator_id => $creator)
 				{
+					$deleted = $creator['deleted'];
+					unset($creator['deleted']);
+					
 					if ($creator_id > 0)
 					{
-						if (!$creator['first_name'] && !$creator['last_name'] && !$creator['prefix'] && !$creator['middle_name'])
+						if ($deleted || (
+							!$creator['first_name'] && !$creator['last_name'] && !$creator['prefix'] && !$creator['middle_name']))
 						{
 							$creator['id'] = $creator_id;
 							$creator['bib_id'] = $bib_id;
@@ -88,7 +92,7 @@ if (!empty($_POST)) {
 							}
 						}
 					}
-					else
+					else if (!$deleted)
 					{
 						if ($creator['first_name'] || $creator['last_name'] || $creator['prefix'] || $creator['middle_name']) {
 							// adding a new creator to an existing reference.

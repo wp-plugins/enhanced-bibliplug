@@ -16,3 +16,5 @@
 
 /* for conference paper */
 .conference_paper #title { font-style:normal; }
+
+.abstract {font-style: italic; padding-left: 2em;}

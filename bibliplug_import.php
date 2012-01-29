@@ -5,167 +5,108 @@ if (!defined('BIBLIPLUG_DIR'))
 	die('Invalid access point.');
 }
 
-$title = __('Import references');
-$parent_file = 'bibliplug_edit.php';
+$title = __('Import / Export references');
 
 ?>
 <div class="wrap">
-<?php screen_icon('edit'); ?>
-<h2><?php echo esc_html( $title ); ?></h2>
+    <?php screen_icon('tools'); ?>
+    <h2><?php echo esc_html( $title ); ?></h2>
+    <br class="clear" />
 
-<?php
+    <?php
+    if (isset($_GET['action']) && $_GET['action'] == 'upload-ris')
+    {
+        if (!current_user_can('administrator'))
+        {
+            wp_die('You are not allowed to import files.');
+        }
 
-if (isset($_GET['action'])) 
-{
-	
-	wp_referer_field('bibliplug-import');
-	
-	if (!class_exists("import_format_helper")) 
-	{
-		require_once(BIBLIPLUG_DIR.'/format_helper/import_format_helper.php');
-	}
+        wp_referer_field('bibliplug-import');
 
-	global $bib_query, $wpdb;
-	if (!current_user_can('administrator')) 
-	{
-		wp_die('You are not allowed to import files.');
-	}
-	
-	$file_name = $_FILES['risfile']['name'];
-	if ($file_name) 
-	{
-		$ris_file = fopen($_FILES['risfile']['tmp_name'], 'r');
-	}
-	
-	if ($ris_file) 
-	{
-		$paser_helper = new import_format_helper();
-		$authors = array();
-		$field_values = array();
-		$field_formats = array();
-		$authors_format = array('%s', '%s', '%s', '%d', '%d', '%d');
-		$type = NULL;
-		$first = true;
-		$error = false;
-		$count = 0;
-		
-		print '<div class="clear"><p></div>';
-		
-		while(!feof($ris_file)) 
-		{
-			$line = trim(fgets($ris_file));
-			
-			if ($first) 
-			{
-				// remove BOM for UTF-8 files. This should not be necessary for
-				// PHP 6.0 or later.
-				$line = str_replace("\xef\xbb\xbf", '', $line);
-				$first = false;
-			}
-			
-			if ($line != '') 
-			{
-				$toks = explode('-', $line, 2);
-				$tag = trim($toks[0]);
-				$data = trim($toks[1]);
-				
-				if ($tag == 'ER') 
-				{
-					if ($error) 
-					{
-						print $wpdb->prepare($line);
-						print '</div>';
-						$error = false;
-					} 
-					else 
-					{
-						try
-						{
-							// End of a bibliography entry. Ready for insert.
-							if ($field_values['title'] != '')
-							{
-								$bib_query->insert_bibliography($field_values, $field_formats, $authors, $authors_format);								
-								$count++;					
-							}
-							else 
-							{
-								print '<strong>Found a reference without title. Skipped.</strong></br>';
-							}
-							
-						}
-						catch (exception $e)
-						{
-							print '<strong>Failed to insert "'.$field_values['title'].'"</strong></br>';
-							$exception_message = $e->getMessage();
-							
-							if (strpos($exception_message, "Duplicate entry") !== false)
-							{
-								print 'Duplicate entry. There is already a reference with the same type, title, and conference/meeting name.';
-							}
-							else
-							{
-								print $exception_message;
-							}
-							
-							print '</br>';
-						}
-						
-						// Re-initialize variables.
-						$field_values= array();
-						$field_formats = array();
-						$authors = array();
-						$type = NULL;
-					}
-				} 
-				else if ($tag) 
-				{
-					if ($error) 
-					{
-						print $wpdb->prepare($line);
-						print '<br/>';
-					} 
-					else
-					{
-						try 
-						{
-							// keep appending fields.
-							$key_value = $paser_helper->parse_ris_fields($tag, $data, $type, $field_values, $field_formats, $authors);
-						} 
-						catch (exception $e) 
-						{
-							$error = true;
-							print '<div class="bib_error">';
-							print '<strong>'.$wpdb->prepare($e->getMessage()).'</strong>';
-							print '<br/>';
-							print $wpdb->prepare($line);
-							print '<br/>';
-						}
-					}
-				}
-			}
-		} // end of while
-		
-		print '<div class="clear"></div>';
-		print '<p>Number of references successfully imported: '.$count.'.</p>';
+        if (!class_exists("import_format_helper"))
+        {
+            require_once(BIBLIPLUG_DIR.'/format_helper/import_format_helper.php');
+        }
 
-	} 
-	else 
-	{
-		print '<div class="clear"></div>';
-		print '<p>You must select a file to import.</p>';
-	}
-}
-?>
+        $file_name = $_FILES['risfile']['name'];
+        if ($file_name)
+        {
+            $ris_file = fopen($_FILES['risfile']['tmp_name'], 'r');
+        }
+
+        if ($ris_file)
+        {
+            require_once(BIBLIPLUG_DIR . '/format_helper/ris_file_helper.php');
+        }
+        else
+        {
+            $message = "You must select a file to import";
+        }
+
+    }
+    ?>
+
+    <?php if ( $message ) { ?>
+    <div id="message" class="updated fade"><p><?php echo $message; ?></p></div>
+    <?php } ?>
 
 
-<br class="clear" />
-	<h4>Import references in RIS format only.</h4>
-<form method="post" enctype="multipart/form-data" 
-	action="<?php echo admin_url('admin.php?page=enhanced-bibliplug/bibliplug_import.php&action=upload-ris'); ?>">
-	<?php wp_nonce_field('bibliplug-import'); ?>		
-	<label class="screen-reader-text" for="risfile">Bibliography file</label>
-	<input type="file" id="risfile" name="risfile" />
-	<input type="submit" class="button" value="Import Now" />
-</form>
-<p>For example, if you are using EndNote or other reference managemnt software, when exporting your reference, choose "RIS" as the export fromat. This will typically result in a .txt file.</p>
-<p>For information on RIS format, go here: <a href="http://www.refman.com/support/risformat_intro.asp">http://www.refman.com/support/risformat_intro.asp</a></p>
+    <br class="clear" />
+    <h3>Import references in RIS format only.</h3>
+    <form method="post" enctype="multipart/form-data"
+        action="<?php echo admin_url('admin.php?page=enhanced-bibliplug/bibliplug_import.php&action=upload-ris'); ?>">
+        <?php wp_nonce_field('bibliplug-import'); ?>
+        <label class="screen-reader-text" for="risfile">Bibliography file</label>
+        <input type="file" id="risfile" name="risfile" />
+        <input type="submit" class="button" value="Import Now" />
+    </form>
+    <p>For example, if you are using EndNote or other reference managemnt software, when exporting your reference,
+        choose "RIS" as the export fromat. This will typically result in a .txt file.</p>
+
+    <br class="clear" />
+    <br class="clear" />
+
+    <h3>Export references to RIS format.</h3>
+
+    <form method="POST" action="<?php echo admin_url('admin-ajax.php?action=bibliplug_export'); ?>">
+        <h4>Filter by:</h4>
+        <table>
+            <tr>
+                <td>Author last name</td>
+                <td><input name="last_name" /></td>
+            </tr>
+            <tr>
+                <td>Author first name</td>
+                <td><input name="first_name" /></td>
+            </tr>
+            <tr>
+                <td>Year</td>
+                <td><select id ="year" name="year">
+                    <option value="0">-- All --</option>
+                    <?php foreach ($bib_query->get_distinct_years() as $year) {
+                    if ($year->publish_year) {
+                        echo "<option value=\"$year->publish_year\">$year->publish_year</option>";
+                    }
+                }?>
+                </select></td>
+            </tr>
+            <tr>
+                <td>Reference Type</td>
+                <td><select id ="type" name="type">
+                    <option value="All">-- All --</option>
+                    <?php foreach ($bib_query->get_types() as $type) {
+                    echo "<option value=\"$type->name\">" . ucfirst($type->name) . "</option>";
+                } ?>
+                </select></td>
+            </tr>
+        </table>
+        <p class="submit">
+            <input type="submit" name="submit" class="button" value="Export" />
+        </p>
+    </form>
+
+    <br class="clear" />
+    <br class="clear" />
+    <br class="clear" />
+    <hr>
+    <p>For information on RIS format, go <a href="http://www.refman.com/support/risformat_intro.asp">here</a>.</p>

@@ -7,14 +7,13 @@
 	    }
 	}
 
-	deleteCreator = function (button) {
-		if (button.closest('tbody').children().length > 1) {
-			button.closest('tr').remove();
-			refreshOrder();
-			$('table#bibliplug-creators tbody').children().each(function() {
-				$(this).attr('id', 'creator-row-' + $(this).find('input.order-index').val())
-			});
+	deleteCreator = function () {
+		if ($(this).closest('tbody').children().length > 1) {
+			var deleted = $(this).closest('tr');
+			deleted.find('input.deleted').val(1);
+			deleted.hide();
 		}
+		return false;
 	}
 	
 	refreshDetails = function() {
@@ -56,15 +55,17 @@
 			newRow.find('select').attr('name', 'creator[-' + newIndex + '][creator_type_id]').val('');
 			
 			newRow.attr('id', 'creator-row-' + position);
+			newRow.find('input.deleted').val(0);
 			newRow.find('input.order-index').val(newOrderIndex);
-			newRow.find('.delete-creator').click(function(){
-				deleteCreator($(this));
-			});
+			newRow.find('.delete-creator').click(deleteCreator);
+			
+			// in case the last row is hidden due to delete
+			newRow.show();
 			
 			creator_table.append(newRow);
 		});
 		
-		$('.delete-creator').click(deleteCreator($(this)));
+		$('.delete-creator').click(deleteCreator);
 		
 		$('table#bibliplug-creators tbody')
 			.sortable({

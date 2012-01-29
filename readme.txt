@@ -2,8 +2,8 @@
 Contributors: zuotian, tatum.cc
 Tags: bibliography, author profile, reference, academic, zotero, res-comms
 Requires at least: 3.1
-Tested up to: 3.2.1
-Stable tag: 1.2.9
+Tested up to: 3.3
+Stable tag: 1.3.0
 
 Collaborative bibliography management for authors in WordPress.
 
@@ -32,6 +32,7 @@ References can be displayed on any post/page using short code bibliplug.
 `[bibliplug category='chapter7']` displays all references under category chapter7.
 `[bibliplug tag='biology']` displays all references with tag biology.
 `[bibliplug year='2008']` displays all references published in 2008.
+`[bibliplug format='full'] displays references with abstracts. Default is 'normal'.
 
 **Note:**
 
@@ -92,8 +93,11 @@ To synchronize with Zotero, the server needs to have php curl modules installed 
 
 = Will my data be deleted during upgrade? =
 
-Deactivating or upgrade the plugin will not delete your bibliographical data. 
+Deactivating or upgrade the plugin will not delete your bibliographical data.
 
+= What is the sort order for references in shortcode display?
+
+Starting in version 1.3, references are sorted by first author's last name, first author's first name, publish year, and type.
 
 == Screenshots ==
 
@@ -102,6 +106,14 @@ Deactivating or upgrade the plugin will not delete your bibliographical data.
 3. Author profile template
 
 == Changelog ==
+
+= 1.3.0 =
+
+* Fixed creator delete bug on reference editing page.
+* Fixed shortcode argument filter bug.
+* Added category and tag management pages.
+* Added new shortcode attribute "full" to support abstract display.
+* Merged import and export to the same page to reduce the number of submenu items.
 
 = 1.2.9 =
 

@@ -2,9 +2,11 @@
 
 require_once(BIBLIPLUG_DIR.'bibliplug_util.php');
 
-class import_format_helper {
+class import_format_helper
+{
 
-	public function parse_ris_fields($tag, $data, &$type, &$field_values, &$field_formats, &$authors) {
+	public function parse_ris_fields($tag, $data, &$type, &$field_values, &$field_formats, &$authors)
+    {
 		global $bib_query;
 		switch ($tag) {	
 			case 'TY':
@@ -345,7 +347,8 @@ class import_format_helper {
 		}
 	}
 	
-	private function get_type_from_ris_type($data) {
+	private function get_type_from_ris_type($data)
+    {
 		global $bib_query;
 		switch ($data) {
 			case 'BOOK':

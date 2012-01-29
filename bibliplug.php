@@ -4,7 +4,7 @@
   Plugin Name: Enhanced BibliPlug
   Plugin URI: http://ep-books.ehumanities.nl/semantic-words/enhanced-bibliplug
   Description: Collaborative bibliography management for WordPress.
-  Version: 1.2.9
+  Version: 1.3.0
   Author: Zuotian Tatum, Clifford Tatum
  */
 
@@ -27,7 +27,7 @@
 
 if (!defined('BIBLIPLUG_VERSION'))
 {
-	define('BIBLIPLUG_VERSION', '1.2.9');
+	define('BIBLIPLUG_VERSION', '1.3.0');
 }
 
 if (!defined('BIBLIPLUG_DIR'))
@@ -104,6 +104,8 @@ add_action('show_user_profile', 'bibliplug_user_profile');
 add_action('edit_user_profile', 'bibliplug_user_profile');
 
 
+add_action('wp_before_admin_bar_render', 'bibliplug_wp_before_admin_bar_render');
+
 
 /* ---------------------------------------------------------------------
  * function implementations.
@@ -132,15 +134,14 @@ function bibliplug_activation()
 // add plugin admin menu
 function bibliplug_menu()
 {
-	// contributor or above can see this menu
-	add_menu_page('Bibliography', 'Bibliography', 1, 'enhanced-bibliplug/bibliplug_manager.php');
-	add_submenu_page('enhanced-bibliplug/bibliplug_manager.php', 'Manage', 'Manager', 1, 'enhanced-bibliplug/bibliplug_manager.php');
-	add_submenu_page('enhanced-bibliplug/bibliplug_manager.php', 'Edit', 'Edit', 1, 'enhanced-bibliplug/bibliplug_edit.php');
-	add_submenu_page('enhanced-bibliplug/bibliplug_manager.php', 'Add New', 'Add New', 1, 'enhanced-bibliplug/bibliplug_add.php');
-	add_submenu_page('enhanced-bibliplug/bibliplug_manager.php', 'Import', 'Import', 8, 'enhanced-bibliplug/bibliplug_import.php');
-	add_submenu_page('enhanced-bibliplug/bibliplug_manager.php', 'Export', 'Export', 1, 'enhanced-bibliplug/bibliplug_export.php');
-	add_submenu_page('enhanced-bibliplug/bibliplug_manager.php', 'Zotero Connector', 'Zotero Connector', 8, 'enhanced-bibliplug/bibliplug_zotero.php');
-
+	add_submenu_page('edit.php?post_type=reference', 'Manage Bibliography', 'All References', 1, 'enhanced-bibliplug/bibliplug_manager.php');
+	add_submenu_page('edit.php?post_type=reference', 'Add New', 'Add New', 1, 'enhanced-bibliplug/bibliplug_add.php');
+	add_submenu_page('edit.php?post_type=reference', 'Reference Categories', 'Categories', 8, 'edit-tags.php?taxonomy=ref_cat&post_type=reference');
+	add_submenu_page('edit.php?post_type=reference', 'Reference Tags', 'Tags', 8, 'edit-tags.php?taxonomy=ref_tag&post_type=reference');
+	add_submenu_page('edit.php?post_type=reference', 'Import/Export', 'Import / Export', 8, 'enhanced-bibliplug/bibliplug_import.php');
+    add_submenu_page('edit.php?post_type=reference', 'Zotero Connector', 'Zotero Connector', 8, 'enhanced-bibliplug/bibliplug_zotero.php');
+	add_submenu_page('edit.php?post_type=reference', 'Edit Reference', 'Edit', 9, 'enhanced-bibliplug/bibliplug_edit.php');
+	
 	// only admin can see the option setting page
 	add_options_page('Bibliplug Options', 'BibliPlug', 8, 'enhanced-bibliplug/bibliplug_options.php');
 }
@@ -148,8 +149,15 @@ function bibliplug_menu()
 function remove_edit_menu()
 {
 	// hide bibliplug_edit.php in the submenu
-	global $submenu;
-	unset($submenu['enhanced-bibliplug/bibliplug_manager.php'][1]);
+    remove_submenu_page('edit.php?post_type=reference', 'edit.php?post_type=reference');
+	remove_submenu_page('edit.php?post_type=reference', 'post-new.php?post_type=reference' );
+	remove_submenu_page('edit.php?post_type=reference', 'enhanced-bibliplug/bibliplug_edit.php');
+}
+
+function bibliplug_wp_before_admin_bar_render()
+{
+	global $wp_admin_bar;
+	$node = $wp_admin_bar->remove_node('new-reference');
 }
 
 // add css to non-admin page header
@@ -163,7 +171,7 @@ function bibliplug_admin_init()
 	global $pagenow;
 	$subpage = $_GET['page'];
 	$js_suffix = BIBLIPLUG_DEBUG ? "dev.js" : "js";
-	if ($pagenow == 'admin.php')
+	if ($pagenow == 'admin.php' || $pagenow == 'edit.php')
 	{
 		if ($subpage == 'enhanced-bibliplug/bibliplug_add.php' || $subpage == 'enhanced-bibliplug/bibliplug_edit.php')
 		{
@@ -209,6 +217,7 @@ function bibliplug_shortcode_handler($atts)
 				'type' => '',
 				'category' => '',
 				'tag' => '',
+				'format' => 'normal',
 				'displayHeader' => 'false'), $atts));
 
 	$refs = array();
@@ -220,13 +229,11 @@ function bibliplug_shortcode_handler($atts)
 	{
 		if ($category)
 		{
-			//$refs = $bib_query->get_referencesby_taxonomy($category, 'ref_cat');
 			$tax_name = $category;
 			$tax_type = 'ref_cat';
 		}
 		else if ($tag)
 		{
-			//$refs = $bib_query->get_references_by_taxonomy($tag, 'ref_tag');
 			$tax_name = $tag;
 			$tax_type = 'ref_tag';
 		}
@@ -241,6 +248,12 @@ function bibliplug_shortcode_handler($atts)
 	{
 		$fields = $bib_query->get_fields_by_type_id($ref->type_id);
 		$result .= $style_helper->display_chicago_style($ref, $fields);
+		if ($format == 'full' && $ref->abstract)
+		{
+			$result .= '<div class="abstract">"' . stripslashes($ref->abstract) . '"</div>';
+		}
+		
+		$result .= '<p></p>';
 	}
 
 	return $result;
@@ -382,7 +395,7 @@ function bibliplug_init()
 		'menu_name' => __('Reference category'),
 	);
 
-	register_taxonomy('ref_cat', array('reference'), array(
+	register_taxonomy('ref_cat', array('ref'), array(
 		'hierarchical' => true,
 		'labels' => $labels,
 		'show_ui' => true,
@@ -409,13 +422,44 @@ function bibliplug_init()
 		'menu_name' => __('Reference tags'),
 	);
 
-	register_taxonomy('ref_tag', 'reference', array(
+	register_taxonomy('ref_tag', 'ref', array(
 		'hierarchical' => false,
 		'labels' => $labels,
 		'show_ui' => true,
 		'query_var' => true,
 		'rewrite' => array('slug' => 'reg_tag'),
 	));
+	
+	$labels = array(
+		'name' => _x('References', 'post type general name'),
+		'singular_name' => _x('Reference', 'post type singular name'),
+		'add_new' => _x('Add New', 'book'),
+		'add_new_item' => __('Add New Reference'),
+		'edit_item' => __('Edit Reference'),
+		'new_item' => __('New Reference'),
+		'all_items' => __('All References'),
+		'view_item' => __('View Reference'),
+		'search_items' => __('Search References'),
+		'not_found' =>  __('No references found'),
+		'not_found_in_trash' => __('No references found in Trash'), 
+		'parent_item_colon' => '',
+		'menu_name' => 'Bibliography'
+	);
+
+	register_post_type('reference', array(
+		'labels' => $labels,
+		'public' => false,
+		'show_ui' => true,
+		'_builtin' => false,
+		'_edit_link' => 'admin.php?page=enhanced-bibliplug/bibliplug_edit.php&id=%d',
+		'capability_type' => 'page',
+		'hierarchical' => false,
+		'rewrite' => array('slug' => 'reference'),
+		'menu_position' => 25,
+		'menu_icon' => 'http://localhost/wordpress/wp-admin/images/generic.png'
+		//'taxonomies' => array('ref_tag', 'ref_cat')
+	));
+
 }
 
 function bibliplug_user_profile($profileuser)

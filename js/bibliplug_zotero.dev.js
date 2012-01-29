@@ -50,10 +50,10 @@ jQuery(document).ready(function($) {
 		$.post(ajaxurl + '?action=bibliplug_add_connection', form.serialize(), function(response){
 			
 			// remove the empty row if it is present
-			$('table.Connections').find('tr.no-items').remove();
+			$('table.connections').find('tr.no-items').remove();
 			
 			var newRow = $(response);
-			var lastRow = $('table.Connections').find('tr').last();
+			var lastRow = $('table.connections').find('tr').last();
 			if (!lastRow.hasClass('alternate')) {
 				newRow.addClass('alternate');
 			}

@@ -210,7 +210,7 @@ class display_format_helper
 			$result .= '.';
 		}
 
-		$result .= '</div><p></p>';
+		$result .= '</div>';
 
 		return $result;
 	}

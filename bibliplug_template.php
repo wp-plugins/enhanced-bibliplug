@@ -25,6 +25,7 @@ class bibliplug_template {
 			foreach ($creators as $creator)  {
 				?><tr id="creator-row-<?php echo $creator->order_index; ?>">
 					<input type="hidden" class="order-index" name="creator[<?php echo $creator->id; ?>][order_index]" value="<?php echo $creator->order_index; ?>" />
+					<input type="hidden" class="deleted" name="creator[<?php echo $creator->id; ?>][deleted]" value="0" />
 					<td>
 						<select name="creator[<?php echo $creator->id; ?>][creator_type_id]"><?php
 							foreach ($creator_types as $type) {
@@ -46,7 +47,7 @@ class bibliplug_template {
 						<input type="text" name="creator[<?php echo $creator->id; ?>][last_name]" value="<?php echo $creator->last_name; ?>" />
 					</td>
 					<td>
-						<span class="delete-creator"><img src="<?php echo admin_url('images/no.png'); ?>" alt="x" /></span>
+						<button class="delete-creator">delete</button>
 					</td>
 				</tr><?php
 			}

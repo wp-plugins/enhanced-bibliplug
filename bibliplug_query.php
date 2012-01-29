@@ -192,7 +192,7 @@ class bibliplug_query {
 		
 		$query .= ' FROM '.$this->bibliography_table.' AS d';
 		$query .= ' INNER JOIN '.$this->types_table.' AS t ON d.type_id = t.id';
-		$query .= ' INNER JOIN '.$this->creators_table.' AS c ON c.bib_id = d.id AND c.order_index = 0';
+		$query .= ' LEFT OUTER JOIN '.$this->creators_table.' AS c ON c.bib_id = d.id AND c.order_index = 1';
 
 		if ($last_name || $first_name)
 		{
@@ -247,14 +247,11 @@ class bibliplug_query {
 		if ($last_name || $first_name)
 		{
 			$query .= ' GROUP BY d.id';
-			$query .= ' ORDER BY d.publish_year DESC, ln, d.type_id';
 		} 
-		else
-		{
-			$query .= ' ORDER BY ln, d.publish_year DESC, d.type_id';
-		}
+
+        $query .= ' ORDER BY ln, c.first_name, d.publish_year DESC, d.type_id';
 		
-		// print '<div class = "query">'.$query.'</div>';
+		//print '<div class = "query">'.$query.'</div>';
 		return $this->run_results_query($query);
 	}
 	
@@ -466,7 +463,7 @@ class bibliplug_query {
 			// now add authors related to this entry.
 			foreach ($creators as $creator) {
 				$creator['bib_id'] = $insert_id;
-				$wpdb->insert($this->creators_table, $creator, $creators_formats);
+				$this->insert_creator($creator, $creators_formats);
 			}
 		} 
 		else
@@ -482,6 +479,7 @@ class bibliplug_query {
 	
 	public function insert_creator($field_values, $field_formats) {
 		global $wpdb;
+        unset($field_values['deleted']);  // in case this is sent from the add/edit form.
 		if (!$wpdb->insert($this->creators_table, $field_values, $field_formats))
 		{
 			//print $wpdb->error;
@@ -629,7 +627,7 @@ class bibliplug_query {
 		global $wpdb;
 		$this->refresh_schema();
 		$version = get_option('bibliplug_db_version', BIBLIPLUG_VERSION);
-		if (BIBLIPLUG_VERSION != $version)
+		if (BIBLIPLUG_VERSION != $version || BIBLIPLUG_DEBUG)
 		{
 			if ($version == '1.1')
 			{
@@ -651,6 +649,21 @@ class bibliplug_query {
 				$wpdb->query("ALTER TABLE $this->zoteroconnections_table ADD `start` int;");
 				$wpdb->query("ALTER TABLE $this->zoteroconnections_table ADD `sync_time` varchar(32);");
 			}
+            else if (version_compare(BIBLIPLUG_VERSION, '1.2.6') > 0)
+            {
+                // Some first creators have order_index = 0 due to the new add/edit form. THis is bad and should be
+                // incremented to 1 (as well as other authors in the same reference).
+                $ids = $wpdb->get_col("SELECT d.id
+                      FROM $this->bibliography_table AS d
+                      INNER JOIN $this->creators_table AS c ON c.bib_id = d.id AND c.order_index = 0");
+
+                if ($ids)
+                {
+                    $wpdb->query("UPDATE $this->creators_table
+                        SET order_index = order_index + 1
+                        WHERE bib_id in (" . join($ids, ', ') . ")");
+                }
+            }
 		}
 		
 		update_option('bibliplug_db_version', BIBLIPLUG_VERSION);
