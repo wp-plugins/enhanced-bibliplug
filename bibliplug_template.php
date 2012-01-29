@@ -19,7 +19,7 @@ class bibliplug_template {
 			if (!$creators)
 			{
 				// creator an empty place holder.
-				$creators = array((object) array('id' => 0, 'order_index' => 0));
+				$creators = array((object) array('id' => 0, 'order_index' => 1));
 			}
 
 			foreach ($creators as $creator)  {
