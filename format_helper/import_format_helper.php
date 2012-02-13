@@ -475,6 +475,8 @@ class import_format_helper
 				return 'running_time';
 			case 'conferenceName':
 				return 'conference_name';
+            case 'presentationType':
+                return 'sub_type';
 
 			// these should be processed eariler.
 			case 'itemType':
@@ -517,6 +519,8 @@ class import_format_helper
 				return 3;
 			case 'director':
 				return 8;
+            case 'presenter':
+                return 6;
 			default:
 				if (BIBLIPLUG_DEBUG) 
 				{

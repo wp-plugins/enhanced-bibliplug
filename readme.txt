@@ -3,7 +3,7 @@ Contributors: zuotian, tatum.cc
 Tags: bibliography, author profile, reference, academic, zotero, res-comms
 Requires at least: 3.1
 Tested up to: 3.3
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 
 Collaborative bibliography management for authors in WordPress.
 
@@ -32,7 +32,7 @@ References can be displayed on any post/page using short code bibliplug.
 `[bibliplug category='chapter7']` displays all references under category chapter7.
 `[bibliplug tag='biology']` displays all references with tag biology.
 `[bibliplug year='2008']` displays all references published in 2008.
-`[bibliplug format='full'] displays references with abstracts. Default is 'normal'.
+`[bibliplug format='full']` displays references with abstracts. Default is 'normal'.
 
 **Note:**
 
@@ -106,6 +106,9 @@ Starting in version 1.3, references are sorted by first author's last name, firs
 3. Author profile template
 
 == Changelog ==
+
+= 1.3.2 =
+* Fixed zotero import for presentation type.
 
 = 1.3.1 =
 * Fixed multiple tag bug.
