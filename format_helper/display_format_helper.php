@@ -210,10 +210,36 @@ class display_format_helper
 			$result .= '.';
 		}
 
+        if (BIBLIPLUG_EXTRA_LINKS)
+        {
+            $result .= ' ' . $this->display_extra_links($bib);
+        }
+
 		$result .= '</div>';
 
 		return $result;
 	}
+
+    public function display_extra_links($bib)
+    {
+        $result = '';
+        if ($bib->DOI)
+        {
+            $result .= "<a href='http://dx.doi.org/$bib->DOI' title='DOI'><span class='icon ui-icon ui-icon-extlink'></span></a>";
+        }
+
+        if ($bib->presentation_link)
+        {
+            $result .= "<a href='$bib->presentation_link' title='presentation'><span class='icon ui-icon ui-icon-image'></span></a>";
+        }
+
+        if ($bib->video_link)
+        {
+            $result .= "<a href='$bib->video_link' title='video'><span class='icon ui-icon ui-icon-video'></span></a>";
+        }
+
+        return $result;
+    }
 
 	public function print_names($creators, $first_name_first)
 	{
@@ -254,6 +280,22 @@ class display_format_helper
 		return $result;
 	}
 
+    private function startsWith($haystack, $needle, $case=true)
+    {
+        if ($case)
+        {
+            return strncmp($haystack, $needle, strlen($needle)) == 0;
+        }
+        else
+        {
+            return strncasecmp($haystack, $needle, strlen($needle)) == 0;
+        }
+    }
+
+    private function endsWith($haystack, $needle, $case=true)
+    {
+        return $this->startsWith(strrev($haystack),strrev($needle),$case);
+    }
 }
 
 ?>

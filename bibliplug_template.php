@@ -115,28 +115,28 @@ class bibliplug_template {
 					case 'keywords':
 						$hint = 'separate multiple keywords with commas';
 						?><input name="<?php echo $field_name; ?>" type="text" id="<?php echo $field_name; ?>" value="<?php echo esc_attr($field_value); ?>" class="input-with-hint long"/>
-						  <span class="bibliplug-hint"><?php echo $hint; ?></span><?php
+						  <br/><span class="description"><?php echo $hint; ?></span><?php
 						break;
 					case 'link1':
 						$hint = 'link full text document to reference title';
 						?><input name="<?php echo $field_name; ?>" type="text" id="<?php echo $field_name; ?>" value="<?php echo esc_attr($field_value); ?>" class="input-with-hint long"/>
-						  <span class="bibliplug-hint"><?php echo $hint; ?></span><?php
+                          <br/><span class="description"><?php echo $hint; ?></span><?php
 						break;
 					case 'link2':
 						$hint = 'link full text html webpage to title';
 						?><input name="<?php echo $field_name; ?>" type="text" id="<?php echo $field_name; ?>" value="<?php echo esc_attr($field_value); ?>" class="input-with-hint long"/>
-						  <span class="bibliplug-hint"><?php echo $hint; ?></span><?php
+                          <br/><span class="description"><?php echo $hint; ?></span><?php
 						break;
 					case 'link3':
 						$hint = 'link source/information page to secondary title';
 						?><input name="<?php echo $field_name; ?>" type="text" id="<?php echo $field_name; ?>" value="<?php echo esc_attr($field_value); ?>" class="input-with-hint long"/>
-						  <span class="bibliplug-hint"><?php echo $hint; ?></span><?php
+                          <br/><span class="description"><?php echo $hint; ?></span><?php
 						break;
 
 					case 'url':
 						$hint = 'enter link here to make URL visible in reference';
 						?><input name="<?php echo $field_name; ?>" type="text" id="<?php echo $field_name; ?>" value="<?php echo esc_attr($field_value); ?>" class="input-with-hint long"/>
-						  <span class="bibliplug-hint"><?php echo $hint; ?></span><?php
+                          <br/><span class="description"><?php echo $hint; ?></span><?php
 						break;
 
 					default:
@@ -149,5 +149,23 @@ class bibliplug_template {
 		} ?>
 		</table><?php
 	}
+
+    public function print_extra_links($bib)
+    {
+        ?><table class="form-table" id="bibliplug-extra-links">
+            <tr valign="top">
+                <th scope="row"><label for="presentation_link">Presentation link</label></th>
+                <td colspan="3">
+                    <input type="text" name="presentation_link" id="presentation_link" value="<?php echo esc_attr($bib->presentation_link); ?>" class="long" />
+                </td>
+            </tr>
+            <tr valign="top">
+                <th scope="row"><label for="video_link">Video link</label></th>
+                <td colspan="3">
+                    <input type="text" name="video_link" id="video_link" value="<?php echo esc_attr($bib->video_link); ?>" class="long" />
+                </td>
+            </tr>
+        </table><?php
+    }
 }
 ?>

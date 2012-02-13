@@ -29,7 +29,6 @@
 	}
 
 	$(document).ready(function($) {
-		postboxes.add_postbox_toggles('bibliplug_form');
 		
 		$('.input-with-hint')
 			.focus(function () {

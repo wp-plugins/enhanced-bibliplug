@@ -3,7 +3,7 @@ Contributors: zuotian, tatum.cc
 Tags: bibliography, author profile, reference, academic, zotero, res-comms
 Requires at least: 3.1
 Tested up to: 3.3
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 
 Collaborative bibliography management for authors in WordPress.
 
@@ -106,6 +106,13 @@ Starting in version 1.3, references are sorted by first author's last name, firs
 3. Author profile template
 
 == Changelog ==
+
+= 1.3.1 =
+* Fixed multiple tag bug.
+* Fixed minor javascript bug (cannot toggel meta boxes) for add/edit reference page.
+* Added DOI, presenation link, and video link for all reference types.
+* New links (DOI, presentation, video) are shown next to each reference. This feature can be turned off in bibliplug option page.
+
 
 = 1.3.0 =
 

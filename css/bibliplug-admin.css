@@ -14,13 +14,12 @@ div#col-right { width: 73%; }
 #bibliplug-creators tr td { border-bottom: solid 1px #DFDFDF; border-top: solid 1px white; padding-right: 1em; }
 #bibliplug-creators input { width:100%; }
 #bibliplug-creators option.red { background-color:red; color:white; }
-#bibliplug-details th { width:100px; }
-#bibliplug-details td { padding: 0; }
-#bibliplug-details input.short { width:35%; }
-#bibliplug-details input.long { width:98%; }
+#bibliplug-details th, #bibliplug-extra-links th { width:100px; }
+#bibliplug-details td, #bibliplug-extra-links td { padding: 10px 0 0 0; }
+#bibliplug-details input.short, #bibliplug-extra-links input.short { width:35%; }
+#bibliplug-details input.long, #bibliplug-extra-links input.long { width:98%; }
 #bibliplug-details textarea { width:98%; }
 #bibliplug-details select { width:35%; }
-.bibliplug-hint { display:inline; position: absolute; right: -300px; width: 280px; margin-top: 0px; border: 1px solid #c93; padding: 2px 12px; background-color: #ffc; }
 .bibliplug-state-highlight { height: 1.5em; line-height: 1.2em; }
 
 /* for error printing */

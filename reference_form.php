@@ -33,6 +33,7 @@ wp_nonce_field( 'meta-box-order', 'meta-box-order-nonce', false );
 add_meta_box('creatersdiv', 'Creators', 'bibliplug_creators_meta_box', 'bibliplug', 'normal', 'core');
 add_meta_box('detailsdiv', 'Details', 'bibliplug_details_meta_box', 'bibliplug', 'normal', 'core');
 add_meta_box('previewdiv', 'Preview', 'bibliplug_preview_meta_box', 'bibliplug', 'side', 'core');
+add_meta_box('extralinksdiv', 'Extra links', 'bibliplug_extra_links_meta_box', 'bibliplug', 'side', 'core');
 add_meta_box('updatediv', 'Save changes', 'bibliplug_save_meta_box', 'bibliplug', 'side', 'core');
 
 add_meta_box('categorydiv-ref_cat', 'Reference categories', 'post_categories_meta_box', 'bibliplug', 'side', 'low', array('taxonomy' => 'ref_cat'));
@@ -54,7 +55,8 @@ function bibliplug_creators_meta_box() {
 	echo '</div>';
 }
 
-function bibliplug_details_meta_box() {
+function bibliplug_details_meta_box()
+{
 	echo "<div id='bibliplug_details_meta_box'>";
 	global $bib, $bib_template, $fields;
 	$type_id = $bib ? $bib->type_id : 1;
@@ -62,7 +64,8 @@ function bibliplug_details_meta_box() {
 	echo '</div>';
 }
 
-function bibliplug_preview_meta_box() {
+function bibliplug_preview_meta_box()
+{
 	global $bib, $fields;
 	echo '<div id="bibliplug_preview">';
 
@@ -74,6 +77,14 @@ function bibliplug_preview_meta_box() {
   	}
 
   	echo '</div>';
+}
+
+function bibliplug_extra_links_meta_box()
+{
+    echo '<div id="bibliplug_extra_links">';
+    global $bib, $bib_template;
+    $bib_template->print_extra_links($bib);
+    echo '</div>';
 }
 
 function bibliplug_save_meta_box($bib) {

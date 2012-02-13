@@ -38,6 +38,18 @@ if (!empty($_POST)) {
 	$data['peer_reviewed'] = isset($_POST['peer_reviewed'])? 1 : 0;
 	$data_format[] = '%d';
 
+    if ($_POST['presentation_link'] && validate_url($_POST['presentation_link']))
+    {
+        $data['presentation_link'] = $_POST['presentation_link'];
+        $data_format[] = '%s';
+    }
+
+    if ($_POST['video_link'] && validate_url($_POST['video_link']))
+    {
+        $data['video_link'] = $_POST['video_link'];
+        $data_format[] = '%s';
+    }
+
 	$post_fields = $bib_query->get_fields_by_type_id($data['type_id']);
 	foreach ($post_fields as $field) {
 		$field_name = $field->internal_name;
@@ -117,7 +129,7 @@ if (!empty($_POST)) {
 		$categories = array_unique($categories);
 		wp_set_object_terms($bib_id, $categories, 'ref_cat');
 
-		$tags = $_POST['tax_input']['ref_tag'];
+		$tags = explode(',', $_POST['tax_input']['ref_tag']);
 		wp_set_object_terms($bib_id, $tags, 'ref_tag');
 	}
 	catch (exception $e)

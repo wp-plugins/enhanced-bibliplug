@@ -594,6 +594,8 @@ class bibliplug_query {
 			link1 varchar(2048),
 			link2 varchar(2048),
 			link3 varchar(2048),
+			presentation_link varchar(2048),
+			video_link varchar(2048),
 			city_of_publication varchar(255),
 			peer_reviewed tinyint(1) UNSIGNED DEFAULT 1,
 			zotero_key varchar(64) UNIQUE,
@@ -649,7 +651,7 @@ class bibliplug_query {
 				$wpdb->query("ALTER TABLE $this->zoteroconnections_table ADD `start` int;");
 				$wpdb->query("ALTER TABLE $this->zoteroconnections_table ADD `sync_time` varchar(32);");
 			}
-            else if (version_compare(BIBLIPLUG_VERSION, '1.2.6') > 0)
+            else if (version_compare($version, '1.3.0') < 0)
             {
                 // Some first creators have order_index = 0 due to the new add/edit form. THis is bad and should be
                 // incremented to 1 (as well as other authors in the same reference).
@@ -663,6 +665,11 @@ class bibliplug_query {
                         SET order_index = order_index + 1
                         WHERE bib_id in (" . join($ids, ', ') . ")");
                 }
+            }
+            else if (version_compare($version, '1.3.1') < 0)
+            {
+                $wpdb->query("ALTER TABLE $this->bibliography_table ADD `presentation_link` varchar(2048);");
+                $wpdb->query("ALTER TABLE $this->bibliography_table ADD `video_link` varchar(2048);");
             }
 		}
 		

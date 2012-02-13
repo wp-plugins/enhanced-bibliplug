@@ -38,11 +38,16 @@ if (isset($_POST['update']) && $_POST['update']) {
 	if (isset($_POST['debug_setting'])) {
 		update_option('bibliplug_debug', $_POST['debug_setting']);
 	}
+
+    if (isset($_POST['extra_links'])) {
+        update_option('bibliplug_extra_links', $_POST['extra_links']);
+    }
 }
 
 $is_english = get_option('bibliplug_last_name_format') == 'english';
 $is_automatic = get_option('bibliplug_zotero_sync_setting') == 'automatic';
 $is_debug = get_option('bibliplug_debug') != '0';
+$show_extra_links = get_option('bibliplug_extra_links', '1') == '1';
 ?>
 
 <div class="wrap">
@@ -72,6 +77,14 @@ $is_debug = get_option('bibliplug_debug') != '0';
 			<input type="radio" name="last_name_format" value="english" <?php echo $is_english ? 'checked' : ''; ?> /> English
 			<input type="radio" name="last_name_format" value="dutch" <?php echo $is_english ? '' : 'checked'; ?>/> Dutch
 		</p>
+        <p>Show extra links next to references:
+            <select name="extra_links">
+                <option value="1" <?php echo $show_extra_links ? 'selected' : ''; ?>>True</option>
+                <option value="0" <?php echo $show_extra_links ? '' : 'selected'; ?>>False</option>
+            </select>
+            <br/>
+            <span class="description">Show extra link icons right after each reference.</span>
+        </p>
 		<p>Debug bibliplug:
 			<select name="debug_setting">
 				<option value="0" <?php echo $is_debug ? '' : 'selected'; ?>>False</option>
@@ -80,7 +93,7 @@ $is_debug = get_option('bibliplug_debug') != '0';
 			<br/>
 			<span class="description">This is helpful to debug databse errors and zotero synchronization issues.</span>
 		</p>
-		
+
 		<p>&nbsp;</p>
 		<p>Update scheduling:
 			<select name="sync_setting">
