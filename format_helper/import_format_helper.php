@@ -474,6 +474,7 @@ class import_format_helper
 			case 'runningTime':
 				return 'running_time';
 			case 'conferenceName':
+            case 'meetingName':
 				return 'conference_name';
             case 'presentationType':
                 return 'sub_type';
