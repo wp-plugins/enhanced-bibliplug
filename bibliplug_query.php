@@ -180,6 +180,7 @@ class bibliplug_query {
 	{
 		global $wpdb;
 		$query = 'SELECT d.*';
+		$conditions = array();
 		
 		if (get_option('bibliplug_last_name_format') == 'english')
 		{
@@ -259,6 +260,7 @@ class bibliplug_query {
 	{
 		
 		$query = 'SELECT d.id, d.title, d.publish_year AS year, d.type_id, t.name AS type';
+        $conditions = array();
 		
 		if (get_option('bibliplug_last_name_format') == 'english') 
 		{
@@ -330,6 +332,8 @@ class bibliplug_query {
 		global $wpdb;
 		$query = 'SELECT COUNT(DISTINCT d.id)
 				    FROM '.$this->bibliography_table.' AS d';
+
+        $conditions = array();
 		
 		if ($user_id || $search) {
 			$query .= ', '.$this->creators_table.' as c1, '.$this->types_table.' AS t';
@@ -816,12 +820,12 @@ class bibliplug_query {
 		
 		$hash_value = $field_values['type_id'] . '-' . md5($field_values['title']);
 		
-		if ($field_values['publication_title'])
+		if (isset($field_values['publication_title']))
 		{
 			$hash_value .= '-' . md5($field_values['publication_title']);
 		}
 		
-		if ($field_values['conference_name'])
+		if (isset($field_values['conference_name']))
 		{
 			$hash_value .= '-' . md5($field_values['conference_name']);
 		}

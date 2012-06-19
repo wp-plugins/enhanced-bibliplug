@@ -19,7 +19,8 @@ class bibliplug_template {
 			if (!$creators)
 			{
 				// creator an empty place holder.
-				$creators = array((object) array('id' => 0, 'order_index' => 1));
+				$creators = array((object) array('id' => 0, 'order_index' => 1, 'first_name' => '', 'middle_name' => '',
+                                                 'prefix' => '', 'last_name' => '', 'creator_type_id' => 1));
 			}
 
 			foreach ($creators as $creator)  {
@@ -78,7 +79,7 @@ class bibliplug_template {
 				foreach ($fields as $field) {
 					$field_name = $field->internal_name;
 					$field_display_name = ($field->mapped_name) ? $field->mapped_name : $field->name;
-					$field_value = stripslashes($bib->$field_name);
+                    $field_value = $bib ? stripslashes($bib->$field_name) : "";
 			?>
 			<tr valign="top">
 				<th scope="row"><label for="<?php echo $field_name; ?>"><?php echo ucfirst($field_display_name); ?></label></th>
@@ -156,13 +157,13 @@ class bibliplug_template {
             <tr valign="top">
                 <th scope="row"><label for="presentation_link">Presentation link</label></th>
                 <td colspan="3">
-                    <input type="text" name="presentation_link" id="presentation_link" value="<?php echo esc_attr($bib->presentation_link); ?>" class="long" />
+                    <input type="text" name="presentation_link" id="presentation_link" value="<?php echo ($bib) ? esc_attr($bib->presentation_link) : ''; ?>" class="long" />
                 </td>
             </tr>
             <tr valign="top">
                 <th scope="row"><label for="video_link">Video link</label></th>
                 <td colspan="3">
-                    <input type="text" name="video_link" id="video_link" value="<?php echo esc_attr($bib->video_link); ?>" class="long" />
+                    <input type="text" name="video_link" id="video_link" value="<?php echo ($bib) ? esc_attr($bib->video_link) : ''; ?>" class="long" />
                 </td>
             </tr>
         </table><?php

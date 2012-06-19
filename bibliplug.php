@@ -4,7 +4,7 @@
   Plugin Name: Enhanced BibliPlug
   Plugin URI: http://ep-books.ehumanities.nl/semantic-words/enhanced-bibliplug
   Description: Collaborative bibliography management for WordPress.
-  Version: 1.3.3
+  Version: 1.3.4
   Author: Zuotian Tatum, Clifford Tatum
  */
 
@@ -27,12 +27,12 @@
 
 if (!defined('BIBLIPLUG_VERSION'))
 {
-	define('BIBLIPLUG_VERSION', '1.3.3');
+	define('BIBLIPLUG_VERSION', '1.3.4');
 }
 
 if (!defined('BIBLIPLUG_DIR'))
 {
-	define('BIBLIPLUG_DIR', ABSPATH . 'wp-content/plugins/enhanced-bibliplug/');
+    define('BIBLIPLUG_DIR', WP_PLUGIN_DIR . '/enhanced-bibliplug/');
 }
 
 define('BIBLIPLUG_DEBUG', get_option('bibliplug_debug', '0'));
@@ -136,16 +136,16 @@ function bibliplug_activation()
 // add plugin admin menu
 function bibliplug_menu()
 {
-	add_submenu_page('edit.php?post_type=reference', 'Manage Bibliography', 'All References', 1, 'enhanced-bibliplug/bibliplug_manager.php');
-	add_submenu_page('edit.php?post_type=reference', 'Add New', 'Add New', 1, 'enhanced-bibliplug/bibliplug_add.php');
-	add_submenu_page('edit.php?post_type=reference', 'Reference Categories', 'Categories', 8, 'edit-tags.php?taxonomy=ref_cat&post_type=reference');
-	add_submenu_page('edit.php?post_type=reference', 'Reference Tags', 'Tags', 8, 'edit-tags.php?taxonomy=ref_tag&post_type=reference');
-	add_submenu_page('edit.php?post_type=reference', 'Import/Export', 'Import / Export', 8, 'enhanced-bibliplug/bibliplug_import.php');
-    add_submenu_page('edit.php?post_type=reference', 'Zotero Connector', 'Zotero Connector', 8, 'enhanced-bibliplug/bibliplug_zotero.php');
-	add_submenu_page('edit.php?post_type=reference', 'Edit Reference', 'Edit', 9, 'enhanced-bibliplug/bibliplug_edit.php');
+	add_submenu_page('edit.php?post_type=reference', 'Manage Bibliography', 'All References', 'edit_posts', 'enhanced-bibliplug/bibliplug_manager.php');
+	add_submenu_page('edit.php?post_type=reference', 'Add New', 'Add New', 'edit_posts', 'enhanced-bibliplug/bibliplug_add.php');
+	add_submenu_page('edit.php?post_type=reference', 'Reference Categories', 'Categories', 'manage-categories', 'edit-tags.php?taxonomy=ref_cat&post_type=reference');
+	add_submenu_page('edit.php?post_type=reference', 'Reference Tags', 'Tags', 'manage-categories', 'edit-tags.php?taxonomy=ref_tag&post_type=reference');
+	add_submenu_page('edit.php?post_type=reference', 'Import/Export', 'Import / Export', 'administrator', 'enhanced-bibliplug/bibliplug_import.php');
+    add_submenu_page('edit.php?post_type=reference', 'Zotero Connector', 'Zotero Connector', 'administrator', 'enhanced-bibliplug/bibliplug_zotero.php');
+	add_submenu_page('edit.php?post_type=reference', 'Edit Reference', 'Edit', 'administrator', 'enhanced-bibliplug/bibliplug_edit.php');
 	
 	// only admin can see the option setting page
-	add_options_page('Bibliplug Options', 'BibliPlug', 8, 'enhanced-bibliplug/bibliplug_options.php');
+	add_options_page('Bibliplug Options', 'BibliPlug', 'manage-options', 'enhanced-bibliplug/bibliplug_options.php');
 }
 
 function remove_edit_menu()
@@ -171,7 +171,7 @@ function bibliplug_head()
 function bibliplug_admin_init()
 {
 	global $pagenow;
-	$subpage = $_GET['page'];
+	$subpage = isset($_GET['page']) ? $_GET['page'] : "" ;
 	$js_suffix = BIBLIPLUG_DEBUG ? "dev.js" : "js";
 	if ($pagenow == 'admin.php' || $pagenow == 'edit.php')
 	{
@@ -207,7 +207,7 @@ function bibliplug_shortcode_handler($atts)
 {
 	global $bib_query;
 
-	if (!defined(BIB_LAST_NAME_FORMAT))
+	if (!defined('BIB_LAST_NAME_FORMAT'))
 	{
 		define('BIB_LAST_NAME_FORMAT', get_option('bibliplug_last_name_format'));
 	}
@@ -223,6 +223,7 @@ function bibliplug_shortcode_handler($atts)
 				'displayHeader' => 'false'), $atts));
 
 	$refs = array();
+	$tax_name = $tax_type = '';
 	if ($id != '0')
 	{
 		$refs = array($bib_query->get_reference(array('id' => $id)));
@@ -377,7 +378,7 @@ function bibliplug_user_display_name($ID)
 function bibliplug_init()
 {
 	// this is from an automatic update cron job.
-	if ($_GET['bibliplug_sync_zotero'])
+	if (isset($_GET['bibliplug_sync_zotero']))
 	{
 		bibliplug_sync_zotero();
 	}

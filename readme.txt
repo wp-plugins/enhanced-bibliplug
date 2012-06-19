@@ -3,7 +3,7 @@ Contributors: zuotian, tatum.cc
 Tags: bibliography, author profile, reference, academic, zotero, res-comms
 Requires at least: 3.1
 Tested up to: 3.3
-Stable tag: 1.3.3
+Stable tag: 1.3.4
 
 Collaborative bibliography management for authors in WordPress.
 
@@ -20,6 +20,10 @@ Key features include:
 1. a custom Author page template to display user's academic title, affiliation, bio, and CV content such as publications and presentations.
 1. short code for listing all users of the site.
 1. the ability to group and retrieve references based on custom categories and tags.
+
+Companion plugin:
+
+[Enhanced Publication](http://wordpress.org/extend/plugins/enhanced-publication/)
 
 = Reference short codes =
 
@@ -106,6 +110,10 @@ Starting in version 1.3, references are sorted by first author's last name, firs
 3. Author profile template
 
 == Changelog ==
+
+= 1.3.4 =
+* Code cleanup under php debug.
+* Better error handling for zotero ajax sync.
 
 = 1.3.3 =
 * One more patch to fix zotero import for presentation type.

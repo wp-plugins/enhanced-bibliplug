@@ -17,6 +17,9 @@ $nonce_name = 'add_reference';
 
 global $bib_query;
 $fields = $bib_query->get_fields_by_type_id();
+$m = null;
+$bib = null;
+$post = (object) array('ID' => 0);
 
 include (BIBLIPLUG_DIR.'reference_form.php');
 

@@ -28,7 +28,7 @@ class Bibliplug_Connection_List_Table extends WP_List_Table
 		
 		$this->set_pagination_args(array(
 			'total_items' => count($this->items),
-			'total_pages' => ceil($total_items / 50),
+			'total_pages' => ceil(count($this->items) / 50),
 			'per_page' => 50
 		));
 	}
@@ -73,6 +73,7 @@ class Bibliplug_Connection_List_Table extends WP_List_Table
 
 	function get_column_info()
 	{
+        $sortable = array();
 		foreach ($this->get_sortable_columns() as $id => $data)
 		{
 			$sortable[$id] = array($data, false);

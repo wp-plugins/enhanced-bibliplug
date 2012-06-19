@@ -9,6 +9,7 @@ if (!current_user_can('edit_posts')) {
 }
 
 $m = 0;
+$is_add = false;
 
 if (!empty($_POST)) {	
 	$is_add = true;
@@ -173,7 +174,7 @@ if (!$is_add || $m == 1 || $m == 2)
 	
 	$fields = $bib_query->get_fields_by_type_id($bib->type_id);
 	
-	// the post category meta box will try to look for a "ID" field.
+	// the post category meta box will try to look for an "ID" field.
 	$bib->ID = $bib->id;
 	$post_ID = $bib->id;
 }

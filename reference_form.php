@@ -1,4 +1,5 @@
 <?php
+$message = null;
 
 if ($m) {
 	switch ($m) {
@@ -17,8 +18,8 @@ if ($m) {
 	}
 }
 
-if (!defined(BIB_LAST_NAME_FORMAT)) {
-	define('BIB_LAST_NAME_FORMAT', get_option('bibliplug_last_name_format'));
+if (!defined('BIB_LAST_NAME_FORMAT')) {
+	define('BIB_LAST_NAME_FORMAT', get_option('bibliplug_last_name_format', 'english'));
 }
 
 // enable categories and tags for references.
@@ -51,7 +52,7 @@ function bibliplug_creators_meta_box() {
 		$creator_types = $bib_query->get_creator_types_by_type_id();
 	}
 
-	echo $bib_template->print_creator_list($creators, $creator_types);
+	$bib_template->print_creator_list($creators, $creator_types);
 	echo '</div>';
 }
 
@@ -87,9 +88,10 @@ function bibliplug_extra_links_meta_box()
     echo '</div>';
 }
 
-function bibliplug_save_meta_box($bib) {
+function bibliplug_save_meta_box($bib)
+{
 	?><div class="bibliography">
-	<p><label for="peer_reviewed">Peer reviewed </label><input type="checkbox" name="peer_reviewed" <?php echo $bib->peer_reviewed ? "checked='yes'" : ""; ?> value="peer_reviewed" /></p>
+	<p><label for="peer_reviewed">Peer reviewed </label><input type="checkbox" name="peer_reviewed" <?php echo ($bib && $bib->ID && $bib->peer_reviewed) ? "checked='yes'" : ""; ?> value="peer_reviewed" /></p>
 	<p class="submit">
 	<input type="submit" name="Submit" class="button-primary" value="<?php esc_attr_e('Save Changes') ?>" />
 	</p></div><?php
@@ -104,13 +106,15 @@ function bibliplug_save_meta_box($bib) {
 <div id="message" class="updated fade"><p><?php echo $message; ?></p></div>
 <?php } ?>
 
-<form name="bibliplug_form" method="post" action="<?php echo admin_url('admin.php?page=enhanced-bibliplug/bibliplug_edit.php&id=' . $bib->id); ?>">
+<?php $bib_id = $bib ? $bib_id : -1; ?>
+
+<form name="bibliplug_form" method="post" action="<?php echo admin_url('admin.php?page=enhanced-bibliplug/bibliplug_edit.php&id=' . $bib_id); ?>">
 <?php wp_nonce_field($nonce_name); ?>
-<input type="hidden" id="hiddenbibid" name="bib_id" value='<?php echo ($bib) ? $bib->id : -1; ?>' />
+<input type="hidden" id="hiddenbibid" name="bib_id" value='<?php echo $bib_id; ?>' />
 <input type="hidden" id="hiddenaction" name="action" value='<?php echo $action; ?>' />
 <div id="poststuff" class="metabox-holder has-right-sidebar">
 	<div id="side-info-column" class="inner-sidebar">
-		<?php do_meta_boxes('bibliplug', 'side', $bib); ?>
+		<?php do_meta_boxes('bibliplug', 'side', $bib ? $bib : (object) array('ID' => 0)); ?>
 	</div>
 	<div id="post-body">
 		<div id="post-body-content">

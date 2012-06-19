@@ -6,6 +6,7 @@ if (!defined('BIBLIPLUG_DIR'))
 }
 
 $title = __('Import / Export references');
+$message = null;
 
 ?>
 <div class="wrap">

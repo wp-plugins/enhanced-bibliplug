@@ -15,6 +15,7 @@ class display_format_helper
 		global $bib_query;
 		$type = $bib_query->get_type_row_by_id($bib->type_id);
 		$result = "<div class='reference $type->internal_name'>";
+		$connector = '';
 
 		//$result .= "$type->name:<br>";
 
@@ -205,7 +206,7 @@ class display_format_helper
 			}
 		}
 
-		if ($result[-1] != '.')
+		if (substr($result, -1) != '.')
 		{
 			$result .= '.';
 		}

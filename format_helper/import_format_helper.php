@@ -249,7 +249,9 @@ class import_format_helper
 
 					case 'numPages':
 					case 'pages':
-						list($start, $end) = split('-', $value);
+						$ps = explode('-', $value);
+						$start = array_shift($ps);
+						$end = array_shift($ps);
 						$field_values['start_page'] = $start;
 						$field_formats[] = '%d';
 						if ($end) {
@@ -307,7 +309,9 @@ class import_format_helper
 						foreach($value as $creator)
 						{
 							$creator_type_id = $this->get_creator_type_id_from_zotero_data($creator['creatorType']);
-							list($first_name, $middle_name) = split(' ', $creator['firstName']);
+							$ns = explode(' ', $creator['firstName']);
+							$first_name = array_shift($ns);
+							$middle_name = array_shift($ns);
 							$last_name = $creator['lastName'];
 
 							$authors[] = array ('first_name' => trim($first_name),
@@ -328,7 +332,7 @@ class import_format_helper
 						}
 						else
 						{
-							if ($field_values['notes']) {
+							if (isset($field_values['notes'])) {
 								$field_values['notes'] .= "; $key - $value";
 							} else {
 								$field_values['notes'] = "$key - $value";

@@ -27,8 +27,11 @@ function bibliplug_add_connection()
 		'account_id' => $_POST['account-id'],
 		'account_type' => strtolower($_POST['account-type']) . 's',
 		'private_key' => $_POST['private-key'],
-		'collection_name' => $_POST['collection-name']
+		'collection_name' => $_POST['collection-name'],
+        'last_updated' => null
 	);
+
+    $response = array();
 
 	if ($connection['collection_name'])
 	{
@@ -53,14 +56,19 @@ function bibliplug_add_connection()
 			}
 			else
 			{
-				die("Cannot find collection with name '{$connection['collection_name']}'");
+                $response['error'] = "Cannot find collection with name '{$connection['collection_name']}'";
 			}
 		}
 		else
 		{
-			die($result);
+            $response['error'] = $result;
 		}
 	}
+
+    if (isset($response['error']))
+    {
+        die(json_encode($response));
+    }
 
 	global $bib_query;
 	$connection_id = $bib_query->insert_zotero_connection($connection);
@@ -70,7 +78,8 @@ function bibliplug_add_connection()
 
 	$connection_manager = new Bibliplug_Connection_List_Table();
 	$connection['id'] = $connection_id;
-	die($connection_manager->display_row((object)$connection));
+    $response['data'] = $connection_manager->display_row((object)$connection);
+	die(json_encode($response));
 }
 
 function bibliplug_sync_zotero()
@@ -79,6 +88,7 @@ function bibliplug_sync_zotero()
 
 	// ie9 sometimes cache this result, which is not a desired behavior for this ajax call.
 	header( 'Cache-Control: no-cache, must-revalidate, max-age=0' );
+	$auto_sync = false;
 
 	if (isset($_GET['bibliplug_sync_zotero']) && $_GET['bibliplug_sync_zotero'])
 	{
@@ -122,6 +132,7 @@ function bibliplug_sync_zotero()
 		$message .= "<h3>$sync_time: Syncing connection \"$connection->nick_name\"</h3>";
 		$zotero = new phpZotero($connection->private_key);
 		$headers = array();
+		$connection_last_synced = null;
 
 		if ($connection->last_updated)
 		{
@@ -253,7 +264,7 @@ function bibliplug_sync_zotero()
 				}
 	
 				$reference_raw = $json->decode($content);
-				$deleted = $reference_raw['deleted'];
+				$deleted = isset($reference_raw['deleted']) ? $reference_raw['deleted'] : null;
 				$authors = array();
 				$field_values = array('zotero_key' => $item_key, 'zotero_etag' => $etag);
 				$field_formats = array('%s', '%s');
@@ -337,7 +348,7 @@ function bibliplug_sync_zotero()
 							$bib = $bib_query->get_reference(array('unique_hash' => $field_values['unique_hash']), array('id'));
 						}
 						
-						if (bib)
+						if ($bib)
 						{
 							wp_set_object_terms($bib->id, $connection->nick_name, 'ref_cat', true);
 							$result .= "<p class='bib_warning'>&nbsp;&nbsp;&nbsp;&nbsp;Notice: Reference '$title' exists in the database. Added category '$connection->nick_name' to reference instead.</p>";

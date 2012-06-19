@@ -15,7 +15,7 @@ class Bibliplug_Reference_List_Table extends WP_List_Table
 	function __construct()
 	{
 
-		$this->per_page = get_option('bibliplug_page_size');
+		$this->per_page = get_option('bibliplug_page_size', 25);
 
 		parent::__construct(array(
 			'plural' => 'References',
@@ -33,11 +33,14 @@ class Bibliplug_Reference_List_Table extends WP_List_Table
 		global $bib_query, $current_user, $search, $page, $orderby, $order;
 		get_currentuserinfo();
 
-		if (!$current_user->has_cap('administrator'))
+		if ($current_user->has_cap('administrator'))
 		{
-			$current_user_id = $current_user->ID;
-			// otherwise, use 0 for editors.
+			$current_user_id = 0;
 		}
+        else
+        {
+            $current_user_id = $current_user->ID;
+        }
 
 		$total_items = $bib_query->get_rows($current_user_id, $search);
 		
