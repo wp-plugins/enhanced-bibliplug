@@ -15,6 +15,9 @@ if ($m) {
 		case 4:
 			$message = 'Action failed';
 			break;
+        default:
+            $message = null;
+            break;
 	}
 }
 
