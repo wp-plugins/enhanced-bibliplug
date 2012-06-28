@@ -2,8 +2,8 @@
 Contributors: zuotian, tatum.cc
 Tags: bibliography, author profile, reference, academic, zotero, res-comms
 Requires at least: 3.1
-Tested up to: 3.3
-Stable tag: 1.3.4
+Tested up to: 3.4
+Stable tag: 1.3.5
 
 Collaborative bibliography management for authors in WordPress.
 
@@ -110,6 +110,9 @@ Starting in version 1.3, references are sorted by first author's last name, firs
 3. Author profile template
 
 == Changelog ==
+
+= 1.3.5 =
+* Fixed a typo causing bibliplug option not showing up in the menu.
 
 = 1.3.4 =
 * Code cleanup under php debug.

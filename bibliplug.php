@@ -4,7 +4,7 @@
   Plugin Name: Enhanced BibliPlug
   Plugin URI: http://ep-books.ehumanities.nl/semantic-words/enhanced-bibliplug
   Description: Collaborative bibliography management for WordPress.
-  Version: 1.3.4
+  Version: 1.3.5
   Author: Zuotian Tatum, Clifford Tatum
  */
 
@@ -27,7 +27,7 @@
 
 if (!defined('BIBLIPLUG_VERSION'))
 {
-	define('BIBLIPLUG_VERSION', '1.3.4');
+	define('BIBLIPLUG_VERSION', '1.3.5');
 }
 
 if (!defined('BIBLIPLUG_DIR'))
@@ -138,14 +138,14 @@ function bibliplug_menu()
 {
 	add_submenu_page('edit.php?post_type=reference', 'Manage Bibliography', 'All References', 'edit_posts', 'enhanced-bibliplug/bibliplug_manager.php');
 	add_submenu_page('edit.php?post_type=reference', 'Add New', 'Add New', 'edit_posts', 'enhanced-bibliplug/bibliplug_add.php');
-	add_submenu_page('edit.php?post_type=reference', 'Reference Categories', 'Categories', 'manage-categories', 'edit-tags.php?taxonomy=ref_cat&post_type=reference');
-	add_submenu_page('edit.php?post_type=reference', 'Reference Tags', 'Tags', 'manage-categories', 'edit-tags.php?taxonomy=ref_tag&post_type=reference');
+	add_submenu_page('edit.php?post_type=reference', 'Reference Categories', 'Categories', 'manage_categories', 'edit-tags.php?taxonomy=ref_cat&post_type=reference');
+	add_submenu_page('edit.php?post_type=reference', 'Reference Tags', 'Tags', 'manage_categories', 'edit-tags.php?taxonomy=ref_tag&post_type=reference');
 	add_submenu_page('edit.php?post_type=reference', 'Import/Export', 'Import / Export', 'administrator', 'enhanced-bibliplug/bibliplug_import.php');
     add_submenu_page('edit.php?post_type=reference', 'Zotero Connector', 'Zotero Connector', 'administrator', 'enhanced-bibliplug/bibliplug_zotero.php');
 	add_submenu_page('edit.php?post_type=reference', 'Edit Reference', 'Edit', 'administrator', 'enhanced-bibliplug/bibliplug_edit.php');
 	
 	// only admin can see the option setting page
-	add_options_page('Bibliplug Options', 'BibliPlug', 'manage-options', 'enhanced-bibliplug/bibliplug_options.php');
+	add_options_page('Bibliplug Options', 'BibliPlug', 'manage_options', 'enhanced-bibliplug/bibliplug_options.php');
 }
 
 function remove_edit_menu()
