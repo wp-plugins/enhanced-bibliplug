@@ -243,8 +243,8 @@ class bibliplug_query {
         if ($keywords)
         {
             $kws = explode(',', $keywords);
-            $func = function($value) { return "d.keywords LIKE '%" . trim($value) . "%'"; };
-            $conditions[] = '(' . join(' OR ', array_map($func, $kws)) . ')';
+            function like_keyword($value) { return "d.keywords LIKE '%" . trim($value) . "%'"; };
+            $conditions[] = '(' . join(' OR ', array_map('like_keyword', $kws)) . ')';
         }
 
         if ($conditions)
