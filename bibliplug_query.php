@@ -260,27 +260,6 @@ class bibliplug_query {
 
         if ($order_by)
         {
-
-            $func = function($value) {
-                switch ($value)
-                {
-                    case 'last_author':
-                        return 'ln';
-                    case 'first_author':
-                        return 'c.first_name';
-                    case 'type':
-                        return 'd.type_id';
-                    case 'date':
-                        return 'd.publish_date';
-                    case 'year':
-                        return 'd.publish_year';
-                    case 'title':
-                        return 'd.title';
-                    default:
-                        return $value;
-                }
-            };
-
             $fields = array_map('trim', explode(',', $order_by));
             $os = array();
             foreach ($fields as $field)
@@ -292,7 +271,7 @@ class bibliplug_query {
                     $field = rtrim($field, '-');
                 }
 
-                $os[] = $func($field) . $orientation;
+                $os[] = $this->map_sort_column_name($field) . $orientation;
             }
 
             $query .= ' ORDER BY ' . join(', ', $os);
@@ -882,5 +861,25 @@ class bibliplug_query {
 		$field_values['unique_hash'] = $hash_value;
 		$field_formats[] = '%s';
 	}
+
+    private function map_sort_column_name($value) {
+        switch ($value)
+        {
+            case 'last_author':
+                return 'ln';
+            case 'first_author':
+                return 'c.first_name';
+            case 'type':
+                return 'd.type_id';
+            case 'date':
+                return 'd.publish_date';
+            case 'year':
+                return 'd.publish_year';
+            case 'title':
+                return 'd.title';
+            default:
+                return $value;
+        }
+    }
 }
 ?>
