@@ -3,7 +3,7 @@ Contributors: zuotian, tatum.cc
 Tags: bibliography, author profile, reference, academic, zotero, res-comms
 Requires at least: 3.1
 Tested up to: 3.4
-Stable tag: 1.3.5
+Stable tag: 1.3.6
 
 Collaborative bibliography management for authors in WordPress.
 
@@ -37,6 +37,12 @@ References can be displayed on any post/page using short code bibliplug.
 `[bibliplug tag='biology']` displays all references with tag biology.
 `[bibliplug year='2008']` displays all references published in 2008.
 `[bibliplug format='full']` displays references with abstracts. Default is 'normal'.
+`[bibliplug keywords='biology, genome']` displays references with any given keywords.
+`[bibliplug order_by='last_name, year-, title']` displays references first ordered by first author's last name, then by publish
+year in descending order, then by title. You can also sort by first_name (first author's first name), date (publication date),
+and type (publication type). By default, text fields are sorted alphabatically from A-Z, dates are sorted from oldest to newest,
+and numbers are sorted from small to big. To invert the sorting order of a field, add "-" at the end of the field name to indicate
+that the field should be sorted in descending order.
 
 **Note:**
 
@@ -110,6 +116,12 @@ Starting in version 1.3, references are sorted by first author's last name, firs
 3. Author profile template
 
 == Changelog ==
+
+= 1.3.6 =
+* Fixed bug where authors cannot add new references.
+* New shortcode `keywords` to show a list of references with given keyword(s).
+* New shortcode `order_by` to determine the sorting order.
+* Fixed broken icon in the admin menu.
 
 = 1.3.5 =
 * Fixed a typo causing bibliplug option not showing up in the menu.

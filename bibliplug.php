@@ -4,7 +4,7 @@
   Plugin Name: Enhanced BibliPlug
   Plugin URI: http://ep-books.ehumanities.nl/semantic-words/enhanced-bibliplug
   Description: Collaborative bibliography management for WordPress.
-  Version: 1.3.5
+  Version: 1.3.6
   Author: Zuotian Tatum, Clifford Tatum
  */
 
@@ -27,7 +27,7 @@
 
 if (!defined('BIBLIPLUG_VERSION'))
 {
-	define('BIBLIPLUG_VERSION', '1.3.5');
+	define('BIBLIPLUG_VERSION', '1.3.6');
 }
 
 if (!defined('BIBLIPLUG_DIR'))
@@ -142,7 +142,7 @@ function bibliplug_menu()
 	add_submenu_page('edit.php?post_type=reference', 'Reference Tags', 'Tags', 'manage_categories', 'edit-tags.php?taxonomy=ref_tag&post_type=reference');
 	add_submenu_page('edit.php?post_type=reference', 'Import/Export', 'Import / Export', 'administrator', 'enhanced-bibliplug/bibliplug_import.php');
     add_submenu_page('edit.php?post_type=reference', 'Zotero Connector', 'Zotero Connector', 'administrator', 'enhanced-bibliplug/bibliplug_zotero.php');
-	add_submenu_page('edit.php?post_type=reference', 'Edit Reference', 'Edit', 'administrator', 'enhanced-bibliplug/bibliplug_edit.php');
+	add_submenu_page('edit.php?post_type=reference', 'Edit Reference', 'Edit', 'edit_posts', 'enhanced-bibliplug/bibliplug_edit.php');
 	
 	// only admin can see the option setting page
 	add_options_page('Bibliplug Options', 'BibliPlug', 'manage_options', 'enhanced-bibliplug/bibliplug_options.php');
@@ -220,6 +220,8 @@ function bibliplug_shortcode_handler($atts)
 				'category' => '',
 				'tag' => '',
 				'format' => 'normal',
+                'keywords' => '',
+                'order_by' => '',
 				'displayHeader' => 'false'), $atts));
 
 	$refs = array();
@@ -241,7 +243,8 @@ function bibliplug_shortcode_handler($atts)
 			$tax_type = 'ref_tag';
 		}
 
-		$refs = $bib_query->get_references($last_name, $first_name, $year, $type, $tax_name, $tax_type);
+		$refs = $bib_query->get_references($last_name, $first_name, $year, $type,
+                                           $tax_name, $tax_type, $keywords, $order_by);
 	}
 
 	$style_helper = new display_format_helper();
@@ -458,8 +461,7 @@ function bibliplug_init()
 		'capability_type' => 'page',
 		'hierarchical' => false,
 		'rewrite' => array('slug' => 'reference'),
-		'menu_position' => 25,
-		'menu_icon' => 'http://localhost/wordpress/wp-admin/images/generic.png'
+		'menu_position' => 25
 		//'taxonomies' => array('ref_tag', 'ref_cat')
 	));
 

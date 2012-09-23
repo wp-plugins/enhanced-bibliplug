@@ -11,7 +11,8 @@ if (!current_user_can('edit_posts')) {
 $m = 0;
 $is_add = false;
 
-if (!empty($_POST)) {	
+if (!empty($_POST)) {
+    // add or update via POST.
 	$is_add = true;
 	if (isset($_POST['action'])) {
 		$action = $_POST['action'];
@@ -132,6 +133,16 @@ if (!empty($_POST)) {
 
 		$tags = explode(',', $_POST['tax_input']['ref_tag']);
 		wp_set_object_terms($bib_id, $tags, 'ref_tag');
+
+        // set up bib after insert or update succeeded.
+        $bib = $bib_query->get_reference(array('id' => $bib_id));
+
+        if ($is_add)
+        {
+            $action = 'add';
+            $nonce_name = 'add_reference';
+            $fields = $bib_query->get_fields_by_type_id();
+        }
 	}
 	catch (exception $e)
 	{
@@ -149,41 +160,34 @@ if (!empty($_POST)) {
 			$m = 4;
 		}
 	}
-	
+
 	unset($_POST);
 }
+else
+{
+    // straight GET request for a given reference.
+    if (isset($_GET['id']) && $_GET['id']) {
+        $bib_id = (int) $_GET['id'];
+    }
+
+    $bib = $bib_query->get_reference(array('id' => $bib_id));
+
+    if (!$bib) {
+        wp_die("Reference '$bib_id' not found.");
+    }
+
+    $fields = $bib_query->get_fields_by_type_id($bib->type_id);
+}
+
+// the post category meta box will try to look for an "ID" field.
+$bib->ID = $bib->id;
+$post_ID = $bib->id;
 
 $parent_file = 'bibliplug_manager.php';
 $submenu_file = 'bibliplug_manager.php';
 $title = 'Edit your reference';
 $action = 'edit';
 $nonce_name = 'edit_reference';
-
-// if add didn't succeed, no need to set up bib.
-if (!$is_add || $m == 1 || $m == 2)
-{
-	if (isset($_GET['id']) && $_GET['id']) {
-		$bib_id = (int) $_GET['id'];
-	}
-	
-	$bib = $bib_query->get_reference(array('id' => $bib_id));
-	
-	if (!$bib) {
-		wp_die("Reference '$bib_id' not found.");
-	}
-	
-	$fields = $bib_query->get_fields_by_type_id($bib->type_id);
-	
-	// the post category meta box will try to look for an "ID" field.
-	$bib->ID = $bib->id;
-	$post_ID = $bib->id;
-}
-else 
-{
-	$action = 'add';
-	$nonce_name = 'add_reference';
-	$fields = $bib_query->get_fields_by_type_id();
-}
 
 include (BIBLIPLUG_DIR.'reference_form.php');
 

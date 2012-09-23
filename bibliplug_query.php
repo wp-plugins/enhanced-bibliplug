@@ -176,7 +176,8 @@ class bibliplug_query {
 		return $this->run_results_query($query);
 	}
 	
-	public function get_references($last_name='', $first_name ='', $year='', $type='', $tax_name='', $tax_type='')
+	public function get_references($last_name='', $first_name ='', $year='', $type='', $tax_name='', $tax_type='',
+                                   $keywords='', $order_by='')
 	{
 		global $wpdb;
 		$query = 'SELECT d.*';
@@ -238,8 +239,15 @@ class bibliplug_query {
 		{
 			$conditions[] = "d.publish_year = '$year'";
 		}
-		
-		if ($conditions)
+
+        if ($keywords)
+        {
+            $kws = explode(',', $keywords);
+            $func = function($value) { return "d.keywords LIKE '%" . trim($value) . "%'"; };
+            $conditions[] = '(' . join(' OR ', array_map($func, $kws)) . ')';
+        }
+
+        if ($conditions)
 		{
 			$query .= ' WHERE ';
 			$query .= join(' AND ', $conditions);
@@ -248,11 +256,52 @@ class bibliplug_query {
 		if ($last_name || $first_name)
 		{
 			$query .= ' GROUP BY d.id';
-		} 
+		}
 
-        $query .= ' ORDER BY ln, c.first_name, d.publish_year DESC, d.type_id';
-		
-		//print '<div class = "query">'.$query.'</div>';
+        if ($order_by)
+        {
+
+            $func = function($value) {
+                switch ($value)
+                {
+                    case 'last_author':
+                        return 'ln';
+                    case 'first_author':
+                        return 'c.first_name';
+                    case 'type':
+                        return 'd.type_id';
+                    case 'date':
+                        return 'd.publish_date';
+                    case 'year':
+                        return 'd.publish_year';
+                    case 'title':
+                        return 'd.title';
+                    default:
+                        return $value;
+                }
+            };
+
+            $fields = array_map('trim', explode(',', $order_by));
+            $os = array();
+            foreach ($fields as $field)
+            {
+                $orientation = '';
+                if (substr($field, -1) == '-')
+                {
+                    $orientation = ' DESC';
+                    $field = rtrim($field, '-');
+                }
+
+                $os[] = $func($field) . $orientation;
+            }
+
+            $query .= ' ORDER BY ' . join(', ', $os);
+        } else
+        {
+            $query .= ' ORDER BY d.publish_year DESC, ln, c.first_name, d.title';
+        }
+
+        // print '<div class = "query">'.$query.'</div>';
 		return $this->run_results_query($query);
 	}
 	
