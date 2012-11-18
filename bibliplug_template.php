@@ -12,6 +12,7 @@ class bibliplug_template {
 					<th>Middle Name</th>
 					<th>Prefix</th>
 					<th>Last Name</th>
+                    <th>Secondary</th>
 					<th></th>
 				</tr>
 			</thead>
@@ -20,7 +21,7 @@ class bibliplug_template {
 			{
 				// creator an empty place holder.
 				$creators = array((object) array('id' => 0, 'order_index' => 1, 'first_name' => '', 'middle_name' => '',
-                                                 'prefix' => '', 'last_name' => '', 'creator_type_id' => 1));
+                                                 'prefix' => '', 'last_name' => '', 'creator_type_id' => 1, 'is_secondary' => 0));
 			}
 
 			foreach ($creators as $creator)  {
@@ -47,6 +48,9 @@ class bibliplug_template {
 					<td>
 						<input type="text" name="creator[<?php echo $creator->id; ?>][last_name]" value="<?php echo $creator->last_name; ?>" />
 					</td>
+                    <td>
+                        <input type="checkbox" name="creator[<?php echo $creator->id; ?>][is_secondary]" value="1" <?php echo $creator->is_secondary ? "checked=checked" : ""; ?>"
+                    </td>
 					<td>
 						<button class="delete-creator">delete</button>
 					</td>

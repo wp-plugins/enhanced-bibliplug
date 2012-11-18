@@ -117,6 +117,13 @@ Starting in version 1.3, references are sorted by first author's last name, firs
 
 == Changelog ==
 
+= 1.3.8 =
+* Fixed add/edit reference bug.
+* Use user full name (with middle name and prefix) as display name on the user profile page.
+* User with `edit_others_posts` capacity can edit others references as well.
+* Allow setting secondary authors (such as editors of the book for a book chapter). Secondary authors are displayed in the reference, but not used when queried by author.
+* Other minor UI fixes.
+
 = 1.3.7 =
 * Fixed php 5.2 compatibility issues (removed usages of php 5.3 anonymous function variable).
 

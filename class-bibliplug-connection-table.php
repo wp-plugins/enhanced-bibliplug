@@ -103,7 +103,7 @@ class Bibliplug_Connection_List_Table extends WP_List_Table
 		{
 			$rowclass = ( $alt++ % 2 ) ? '' : 'alternate';
 
-			$this->display_row($row, $rowclass, $columns, $hidden_columns);
+			echo $this->display_row($row, $rowclass, $columns, $hidden_columns);
 		}
 	}
 	
@@ -119,14 +119,14 @@ class Bibliplug_Connection_List_Table extends WP_List_Table
 			$hidden_columns = $this->get_hidden_columns();
 		}
 		
-		?><tr id='zotero_account-<?php echo $row->id; ?>' class='<?php echo $rowclass; ?> iedit' valign="top"><?php
+		$row_result = "<tr id='zotero_account-{$row->id}' class='$rowclass iedit' valign='top'>";
 				
 		foreach ( $columns as $column_name=>$column_display_name ) {
-			$class = "class=\"$column_name column-$column_name\"";
+			$class = "class='$column_name column-$column_name'";
 
 			$style = '';
 			if ( in_array($column_name, $hidden_columns) ) {
-				$style = 'style="display:none;"';
+				$style = "style='display:none;'";
 			}
 
 			$attributes = "$class $style";
@@ -134,42 +134,43 @@ class Bibliplug_Connection_List_Table extends WP_List_Table
 			switch ($column_name) {
 
 				case 'nick_name':
-					echo "<td $attributes>$row->nick_name";
-					echo "</td>";
+					$row_result .= "<td $attributes>{$row->nick_name}</td>";
 					break;
 
 				case 'private_key':
-					echo "<td $attributes>$row->private_key</td>";
+                    $row_result .= "<td $attributes>{$row->private_key}</td>";
 					break;
 
 				case 'account_id':
-					echo "<td $attributes>$row->account_id</td>";
+                    $row_result .= "<td $attributes>{$row->account_id}</td>";
 					break;
 
 				case 'account_type':
-					echo "<td $attributes>$row->account_type</td>";
+                    $row_result .= "<td $attributes>$row->account_type</td>";
 					break;
 
 				case 'collection_name':
-					echo "<td $attributes>$row->collection_name</td>";
+                    $row_result .= "<td $attributes>{$row->collection_name}</td>";
 					break;
 
 				case 'collection_id':
-					echo "<td $attributes>$row->collection_id</td>";
+                    $row_result .= "<td $attributes>{$row->collection_id}</td>";
 					break;
 
 				case 'last_updated':
-					echo "<td $attributes>$row->last_updated</td>";
+                    $row_result .= "<td $attributes>{$row->last_updated}</td>";
 					break;
 
 				case 'sync':
-					echo "<td><button class='sync-now submit button' value='$row->id'>Sync</button>";
-					echo "<button class='delete submit button' value='$row->id'>Delete</button></td>";
+                    $row_result .= "<td><button class='sync-now submit button' value='$row->id'>Sync</button>";
+                    $row_result .= "<button class='delete submit button' value='$row->id'>Delete</button></td>";
 					break;
 			}
 		}
 
-		echo "</tr>";
+        $row_result .= "</tr>";
+
+        return $row_result;
 	}
 
 }

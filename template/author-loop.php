@@ -16,8 +16,15 @@ class bibliplug_loops extends thesis_custom_loop {
 
 		$curauth = get_userdata($wp_query->query_vars['author']);
 
+        if (!defined('BIB_LAST_NAME_FORMAT' ))
+        {
+            define('BIB_LAST_NAME_FORMAT', get_option('bibliplug_last_name_format'));
+        }
+
+        $display_name = print_name($curauth, true, true);
+
 		echo "<div id='archive_intro' class='author_bio'>";
-		echo "<h1><strong>$curauth->display_name</strong></h1>";
+		echo "<h1><strong>$display_name</strong></h1>";
 		echo "	<div class='bibliplug-author_avatar'>".get_avatar($curauth->ID, 120)."</div>";
 		echo "	<div class='bibliplug-author_details format_text entry-content'>";
 		echo "		<p><strong>".str_replace("\n", "<br/>", $curauth->affiliation)."</strong></p>";

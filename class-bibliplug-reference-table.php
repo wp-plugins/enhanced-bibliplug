@@ -33,7 +33,7 @@ class Bibliplug_Reference_List_Table extends WP_List_Table
 		global $bib_query, $current_user, $search, $page, $orderby, $order;
 		get_currentuserinfo();
 
-		if ($current_user->has_cap('administrator'))
+		if ($current_user->has_cap('edit_others_posts'))
 		{
 			$current_user_id = 0;
 		}

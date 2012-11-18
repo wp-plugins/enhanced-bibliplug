@@ -4,7 +4,7 @@
   Plugin Name: Enhanced BibliPlug
   Plugin URI: http://ep-books.ehumanities.nl/semantic-words/enhanced-bibliplug
   Description: Collaborative bibliography management for WordPress.
-  Version: 1.3.7
+  Version: 1.3.8
   Author: Zuotian Tatum, Clifford Tatum
  */
 
@@ -27,7 +27,7 @@
 
 if (!defined('BIBLIPLUG_VERSION'))
 {
-	define('BIBLIPLUG_VERSION', '1.3.7');
+	define('BIBLIPLUG_VERSION', '1.3.8');
 }
 
 if (!defined('BIBLIPLUG_DIR'))
@@ -248,21 +248,21 @@ function bibliplug_shortcode_handler($atts)
 	}
 
 	$style_helper = new display_format_helper();
-	$result = '';
+	$results = array();
 
 	foreach ($refs as $ref)
 	{
 		$fields = $bib_query->get_fields_by_type_id($ref->type_id);
-		$result .= $style_helper->display_chicago_style($ref, $fields);
+		$result = $style_helper->display_chicago_style($ref, $fields);
 		if ($format == 'full' && $ref->abstract)
 		{
 			$result .= '<div class="abstract">"' . stripslashes($ref->abstract) . '"</div>';
 		}
 		
-		$result .= '<p></p>';
+		$results[] = $result;
 	}
 
-	return $result;
+	return implode('<p></p>', $results);
 }
 
 function bibliplug_authors_shortcode_handler($atts)
@@ -285,16 +285,23 @@ function bibliplug_authors_shortcode_handler($atts)
 		$author_ids = $bib_query->get_wp_author_ids();
 	}
 
+    if (!defined('BIB_LAST_NAME_FORMAT' ))
+    {
+        define('BIB_LAST_NAME_FORMAT', get_option('bibliplug_last_name_format'));
+    }
+
 	$result = "<table " . (($format == 'list') ? "class= 'bibliplug-authors'" : "") . ">";
 
 	foreach ($author_ids as $author)
 	{
 		$curauth = get_userdata($author->ID);
 
+        $display_name = print_name($curauth, true, true);
+
 		if ($format == 'list')
 		{
 			$result .= "<tr><td><a href='" . get_author_posts_url($curauth->ID) . "'>" . get_avatar($curauth->ID, 120) . "</a></td>";
-			$result .= "<td><b><a href='" . get_author_posts_url($curauth->ID) . "'>$curauth->display_name</b></a><br/>" . str_replace("\n", "<br/>", $curauth->affiliation) . "</td><tr>";
+			$result .= "<td><b><a href='" . get_author_posts_url($curauth->ID) . "'>$display_name</b></a><br/>" . str_replace("\n", "<br/>", $curauth->affiliation) . "</td><tr>";
 		}
 		else if ($format == 'mini')
 		{
@@ -303,7 +310,7 @@ function bibliplug_authors_shortcode_handler($atts)
 		else if ($format == 'profile')
 		{
 			$result .= "<tr><td>";
-			$result .= "	<h2>$curauth->display_name</h2>";
+			$result .= "	<h2>$display_name</h2>";
 			$result .= "	<div class='bibliplug-author_avatar'><a href='" . get_author_posts_url($curauth->ID) . "'>" . get_avatar($curauth->ID, 120) . "</a></div>";
 			$result .= "	<div class='bibliplug-author_details'>";
 			$result .= "		<p><strong>" . str_replace("\n", "<br/>", $curauth->affiliation) . "</strong></p>";

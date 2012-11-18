@@ -206,6 +206,8 @@ class bibliplug_query {
 			if ($first_name) {
 				$conditions[] = "c1.first_name = '$first_name'";
 			}
+
+            $conditions[] = "c1.is_secondary = 0";
 		}
 
 		if ($tax_name && $tax_type)
@@ -432,7 +434,7 @@ class bibliplug_query {
 	}
 		
 	public function get_creator($creator_id) {
-		$query = 'SELECT order_index, creator_type_id, first_name, middle_name, prefix, last_name
+		$query = 'SELECT order_index, creator_type_id, first_name, middle_name, prefix, last_name, is_secondary
 					FROM '.$this->creators_table.'
 					WHERE id = '.$creator_id;
 		return $this->run_row_query($query, ARRAY_A);
@@ -535,7 +537,7 @@ class bibliplug_query {
 	public function update_bibliography($bib_id, &$field_values, &$field_formats) {
 		global $wpdb;
 		$this->fields_setup($field_values, $field_formats);
-		if (!$wpdb->update($this->bibliography_table, $field_values, array('id' => $bib_id), $field_formats, array('%d'))) {
+		if ($wpdb->update($this->bibliography_table, $field_values, array('id' => $bib_id), $field_formats, array('%d')) === false) {
 			/*print '<strong>Failed to update "'.$field_values['title'].'"</strong></br>';
 			$wpdb->print_error();
 			print '</br>';*/
@@ -548,7 +550,7 @@ class bibliplug_query {
 	
 	public function update_creator($creator_id, $field_values, $field_formats) {
 		global $wpdb;
-		if (!$wpdb->update($this->creators_table, $field_values, array('id' => $creator_id), $field_formats, array('%d'))) {
+		if ($wpdb->update($this->creators_table, $field_values, array('id' => $creator_id), $field_formats, array('%d')) === false) {
 			/*print '<strong>Failed to update "'.$field_values['first_name'].' '.$field_values['last_name'].'"</strong></br>';
 			$wpdb->print_error();
 			print '</br>';*/
@@ -559,7 +561,7 @@ class bibliplug_query {
 	public function update_zotero_connection($connection_id, $field_values, $field_formats)
 	{
 		global $wpdb;
-		if (!$wpdb->update($this->zoteroconnections_table, $field_values, array('id' => $connection_id), $field_formats, array('%d')))
+		if ($wpdb->update($this->zoteroconnections_table, $field_values, array('id' => $connection_id), $field_formats, array('%d')) === false)
 		{
 			//throw new exception($wpdb->last_error);
 			print $wpdb->print_error();
@@ -840,10 +842,10 @@ class bibliplug_query {
 	
 	private function fields_setup(&$field_values, &$field_formats)
 	{
-		if (!$field_values['title'])
+		if (!isset($field_values['title']) or empty($field_values['title']))
 		{
 			// print_r($field_values);
-			throw new exception('Title cannot be empty.');
+			throw new Exception('Title cannot be empty.');
 		}
 		
 		$hash_value = $field_values['type_id'] . '-' . md5($field_values['title']);

@@ -32,7 +32,12 @@ if (!empty($_POST)) {
 	}
 
 	$creators = $_POST['creator'];
-	$creator_format = array('%d', '%d', '%s', '%s', '%s', '%s');
+    foreach ($creators as $creator_id => $creator)
+    {
+        $creators[$creator_id]['is_secondary'] = isset($creator['is_secondary']) ? 1 : 0;
+    }
+
+	$creator_format = array('%d', '%d', '%s', '%s', '%s', '%s', '%d');
 
 	$data['type_id'] = (int) $_POST['type_id'];
 	$data_format[] = '%d';
@@ -55,22 +60,25 @@ if (!empty($_POST)) {
 	$post_fields = $bib_query->get_fields_by_type_id($data['type_id']);
 	foreach ($post_fields as $field) {
 		$field_name = $field->internal_name;
-		$value = $_POST[$field_name];
+		if (isset($_POST[$field_name]))
+        {
+            $value = $_POST[$field_name];
 
-		if (is_field_numeric($field_name))
-		{
-			$data[$field_name] = empty($value) ? 0 : (int) $value;
-			$data_format[] = '%d';
-		}
-		else
-		{
-			if ($value && ($field_name == 'link1' || $field_name == 'link2' || $field_name == 'link3' || $field_name == 'url')) {
-				$value = validate_url($value);
-			}
+            if (is_field_numeric($field_name))
+            {
+                $data[$field_name] = empty($value) ? 0 : (int) $value;
+                $data_format[] = '%d';
+            }
+            else
+            {
+                if ($value && ($field_name == 'link1' || $field_name == 'link2' || $field_name == 'link3' || $field_name == 'url')) {
+                    $value = validate_url($value);
+                }
 
-			$data[$field_name] = $value;
-			$data_format[] = '%s';
-		}
+                $data[$field_name] = $value;
+                $data_format[] = '%s';
+            }
+        }
 	}
 
 	//print_r($data);
@@ -99,11 +107,7 @@ if (!empty($_POST)) {
 						}
 						else
 						{
-							$old_creator = $bib_query->get_creator($creator_id);
-							if ($old_creator != $creator)
-							{
-								$bib_query->update_creator($creator_id, $creator, $creator_format);
-							}
+                            $bib_query->update_creator($creator_id, $creator, $creator_format);
 						}
 					}
 					else if (!$deleted)
@@ -136,13 +140,6 @@ if (!empty($_POST)) {
 
         // set up bib after insert or update succeeded.
         $bib = $bib_query->get_reference(array('id' => $bib_id));
-
-        if ($is_add)
-        {
-            $action = 'add';
-            $nonce_name = 'add_reference';
-            $fields = $bib_query->get_fields_by_type_id();
-        }
 	}
 	catch (exception $e)
 	{
@@ -154,10 +151,12 @@ if (!empty($_POST)) {
 		{
 			if (BIBLIPLUG_DEBUG)
 			{
-				print $e->getMessage();
+				print $e;
 			}
+
+            $bibliplug_error = $e->getMessage();
 			
-			$m = 4;
+			$m = $bibliplug_error ? 4 : 5;
 		}
 	}
 
@@ -172,22 +171,38 @@ else
 
     $bib = $bib_query->get_reference(array('id' => $bib_id));
 
-    if (!$bib) {
+    if (!$bib)
+    {
         wp_die("Reference '$bib_id' not found.");
     }
-
-    $fields = $bib_query->get_fields_by_type_id($bib->type_id);
 }
 
-// the post category meta box will try to look for an "ID" field.
-$bib->ID = $bib->id;
-$post_ID = $bib->id;
 
 $parent_file = 'bibliplug_manager.php';
 $submenu_file = 'bibliplug_manager.php';
-$title = 'Edit your reference';
-$action = 'edit';
-$nonce_name = 'edit_reference';
+
+if ($is_add && !isset($bib))
+{
+    # keep it in the add state.
+    $action = 'add';
+    $nonce_name = 'add_reference';
+    $title = 'Add new reference';
+    $bib = null;
+    $post = (object) array('ID' => 0);
+    $fields = $bib_query->get_fields_by_type_id($data['type_id']);
+}
+else
+{
+    $title = 'Edit your reference';
+    $action = 'edit';
+    $nonce_name = 'edit_reference';
+    $fields = $bib_query->get_fields_by_type_id($bib->type_id);
+
+    // the post category meta box will try to look for an "ID" field.
+    $bib->ID = $bib->id;
+    $post_ID = $bib->id;
+}
+
 
 include (BIBLIPLUG_DIR.'reference_form.php');
 

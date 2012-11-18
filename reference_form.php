@@ -13,8 +13,11 @@ if ($m) {
 			$message = 'Duplicate entry. There is already a reference with the same type, title, and conference/meeting name.';
 			break;
 		case 4:
-			$message = 'Action failed';
-			break;
+            $message = $bibliplug_error;
+            break;
+        case 5:
+            $message = 'Action failed';
+            break;
         default:
             $message = null;
             break;
@@ -106,7 +109,7 @@ function bibliplug_save_meta_box($bib)
 <h2><?php echo esc_html( $title ); ?></h2>
 
 <?php if ( $message ) { ?>
-<div id="message" class="updated fade"><p><?php echo $message; ?></p></div>
+<div id="message" class="fade <?php echo $m > 2 ? 'error' : 'updated'; ?>"><p><?php echo $message; ?></p></div>
 <?php } ?>
 
 <?php $bib_id = $bib ? $bib_id : -1; ?>
