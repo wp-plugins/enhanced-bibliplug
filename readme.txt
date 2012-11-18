@@ -3,7 +3,7 @@ Contributors: zuotian, tatum.cc
 Tags: bibliography, author profile, reference, academic, zotero, res-comms
 Requires at least: 3.1
 Tested up to: 3.4
-Stable tag: 1.3.7
+Stable tag: 1.3.8
 
 Collaborative bibliography management for authors in WordPress.
 
