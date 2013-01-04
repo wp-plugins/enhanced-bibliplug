@@ -1,6 +1,6 @@
 /* for author page */
 .bibliplug-author_avatar { padding-right:30px; float:left; }
-.bibliplug-authors td { border-width: medium; padding: 1em; border-color:Red;}
+.bibliplug-authors td { border-width: medium; padding: 1em; }
 
 /* for chicago stype display */
 .reference #title { font-style:italic; }

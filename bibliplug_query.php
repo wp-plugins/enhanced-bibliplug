@@ -18,14 +18,17 @@ class bibliplug_query {
 	public function bibliplug_query()
 	{
 		global $wpdb;
-		$this->types_table = $wpdb->prefix . 'bibliplug_types';
-		$this->fields_table = $wpdb->prefix . 'bibliplug_fields';
-		$this->typefields_table = $wpdb->prefix . 'bibliplug_typefields';
-		$this->creatortypes_table = $wpdb->prefix . 'bibliplug_creatortypes';
-		$this->typecreatortypes_table = $wpdb->prefix . 'bibliplug_typecreatortypes';
-		$this->bibliography_table = $wpdb->prefix . 'bibliplug_bibliography';
-		$this->creators_table = $wpdb->prefix . 'bibliplug_creators';
-		$this->zoteroconnections_table = $wpdb->prefix . 'bibliplug_zoteroconnections';
+		$active_plugins = (array) get_site_option( 'active_sitewide_plugins', array() );
+		$prefix = isset($active_plugins['enhanced-bibliplug/bibliplug.php']) ? $wpdb->base_prefix : $wpdb->prefix;
+
+		$this->types_table = $prefix . 'bibliplug_types';
+		$this->fields_table = $prefix . 'bibliplug_fields';
+		$this->typefields_table = $prefix . 'bibliplug_typefields';
+		$this->creatortypes_table = $prefix . 'bibliplug_creatortypes';
+		$this->typecreatortypes_table = $prefix . 'bibliplug_typecreatortypes';
+		$this->bibliography_table = $prefix . 'bibliplug_bibliography';
+		$this->creators_table = $prefix . 'bibliplug_creators';
+		$this->zoteroconnections_table = $prefix . 'bibliplug_zoteroconnections';
 	}
 
 	private function run_results_query($query) {
