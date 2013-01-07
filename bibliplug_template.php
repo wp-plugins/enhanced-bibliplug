@@ -37,16 +37,16 @@ class bibliplug_template {
 						?></select>
 					</td>
 					<td>
-						<input type="text" name="creator[<?php echo $creator->id; ?>][first_name]" value="<?php echo $creator->first_name; ?>" />
+						<input type="text" name="creator[<?php echo $creator->id; ?>][first_name]" value="<?php echo stripslashes($creator->first_name); ?>" />
 					</td>
 					<td>
-						<input type="text" name="creator[<?php echo $creator->id; ?>][middle_name]" value="<?php echo $creator->middle_name; ?>" />
+						<input type="text" name="creator[<?php echo $creator->id; ?>][middle_name]" value="<?php echo stripslashes($creator->middle_name); ?>" />
 					</td>
 					<td>
-						<input type="text" name="creator[<?php echo $creator->id; ?>][prefix]" value="<?php echo $creator->prefix; ?>" />
+						<input type="text" name="creator[<?php echo $creator->id; ?>][prefix]" value="<?php echo stripslashes($creator->prefix); ?>" />
 					</td>
 					<td>
-						<input type="text" name="creator[<?php echo $creator->id; ?>][last_name]" value="<?php echo $creator->last_name; ?>" />
+						<input type="text" name="creator[<?php echo $creator->id; ?>][last_name]" value="<?php echo stripslashes($creator->last_name); ?>" />
 					</td>
                     <td>
                         <input type="checkbox" name="creator[<?php echo $creator->id; ?>][is_secondary]" value="1" <?php echo $creator->is_secondary ? "checked=checked" : ""; ?>"

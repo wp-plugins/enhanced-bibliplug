@@ -43,13 +43,13 @@ function print_name($creator, $first_name_first, $include_middle_name=false) {
 	if ($first_name)
 	{
 		if ($first_name_first) {
-			return $first_name.' '.$last_name;
+			return stripslashes($first_name.' '.$last_name);
 		} else {
-			return $last_name.', '.$first_name;
+			return stripslashes($last_name.', '.$first_name);
 		}
 	}
 	
-	return $last_name;
+	return stripslashes($last_name);
 }
 
 ?>
